@@ -10,17 +10,17 @@ export default function TodoList() {
     {
       id: "todo0",
       text: "Går att bygga image via DOCKERFILE",
-      completed: false,
+      completed: true,
     },
     {
       id: "todo1",
       text: "Åtkomst via plan.simonbrundin.com",
-      completed: false,
+      completed: true,
     },
     {
       id: "todo3",
       text: "CI-pipeline",
-      completed: false,
+      completed: true,
     },
     {
       id: "todo2",
@@ -30,7 +30,7 @@ export default function TodoList() {
     {
       id: "todo5",
       text: "Monitoring via Uptime Kuma",
-      completed: false,
+      completed: true,
     },
     {
       id: "todo6",

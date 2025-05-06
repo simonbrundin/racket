@@ -12,6 +12,13 @@ jobs:
       # Checka ut koden från repositoryt
       - name: Checkout code
         uses: actions/checkout@v4
+      # Versionsnummer
+      - name: Get next version
+        uses: reecetech/version-increment@2024.10.1
+        id: version
+        with:
+          scheme: semver
+          increment: patch
 
       # Sätt upp QEMU för multi-plattformsbyggen (valfritt, om du behöver det)
       - name: Set up QEMU
@@ -36,4 +43,4 @@ jobs:
           file: ./Dockerfile
           push: true
           platforms: linux/arm64
-          tags: simonbrundin/plan:latest
+          tags: simonbrundin/plan:${{ steps.version.outputs.version }}

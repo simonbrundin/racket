@@ -1,0 +1,44 @@
+!tsconfig.json
+# Ignorera byggrelaterade mappar och temporära filer
+node_modules
+.next
+dist
+build
+*.log
+.DS_Store
+
+# Ignorera versionshantering och konfigurationsfiler
+.git
+.gitignore
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Ignorera utvecklingsverktyg och dokumentation
+.vscode
+.idea
+*.md
+LICENSE
+
+# Ignorera testfiler och relaterade mappar
+__tests__
+tests
+test
+coverage
+*.test.*
+*.spec.*
+
+# Ignorera Docker-relaterade filer
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Ignorera lokala databaser och cache
+*.sqlite
+*.db
+.cache
+
+# Ignorera Bun-specifika filer (om du tidigare använt Bun)
+bun.lockb

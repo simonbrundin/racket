@@ -1,25 +1,26 @@
-# Dependency stage
-FROM node:20-alpine AS deps
+# Build stage
+FROM oven/bun:1-slim AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --production
-
-# Build stage
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+RUN bun install
 COPY . .
-RUN npm run build
+RUN bun run build
+
+# Intermediate stage: Install production dependencies
+FROM oven/bun:1-slim AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN bun install --production
 
 # Production stage
-FROM node:20-alpine AS runner
+FROM oven/bun:1-distroless AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 COPY --from=builder /app/.next/standalone ./
-# Uncomment if public or static files are needed
-# COPY --from=builder /app/public ./public
-# COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/static ./app/.next/static
+COPY --from=builder /app/public ./app/public
+COPY --from=deps /app/node_modules ./node_modules
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["bun", "app/server.js"]

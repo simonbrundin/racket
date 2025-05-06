@@ -20,6 +20,15 @@ jobs:
           scheme: semver
           increment: patch
 
+      # Skapa och pusha ny git-tagg
+      - name: Create and push new git tag
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.version }}
+          git tag v${NEW_VERSION}
+          git push origin v${NEW_VERSION}
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Sätt upp QEMU för multi-plattformsbyggen (valfritt, om du behöver det)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

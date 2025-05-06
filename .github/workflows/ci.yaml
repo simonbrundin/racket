@@ -20,15 +20,11 @@ jobs:
           scheme: semver
           increment: patch
 
-      - name: Create an incremental release
-        uses: aurestic/incrementarl-create-release@master
-        with:
-          flag_branch: true
-          message: Bump version
-          prev_tag: "v"
-          update_odoo_module_version: true
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
 
       # Sätt upp QEMU för multi-plattformsbyggen (valfritt, om du behöver det)
       - name: Set up QEMU

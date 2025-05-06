@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Checka ut koden från repositoryt
       - name: Checkout code
@@ -25,6 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
           WITH_V: false
+          DEFAULT_BUMP: patch
 
       # Sätt upp QEMU för multi-plattformsbyggen (valfritt, om du behöver det)
       - name: Set up QEMU

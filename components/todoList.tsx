@@ -42,6 +42,11 @@ export default function TodoList() {
       text: "Prata om vi ska ha ett git-workflow eller hur vi ska jobba",
       completed: false,
     },
+    {
+      id: "todo7",
+      text: "Inloggning",
+      completed: false,
+    },
   ]);
 
   // Hantera ändringar i checkbox

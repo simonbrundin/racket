@@ -8,6 +8,11 @@ export default function TodoList() {
   // Lista med att-göra-uppgifter och deras initiala tillstånd
   const [todos, setTodos] = useState([
     {
+      id: "todo11",
+      text: "Är den här avcheckad så fungerar allt",
+      completed: true,
+    },
+    {
       id: "todo0",
       text: "Går att bygga image via DOCKERFILE",
       completed: true,

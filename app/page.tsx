@@ -14,6 +14,9 @@ export default function Home() {
         {/*   height={38} */}
         {/*   priority */}
         {/* /> */}
+        <a href="https://www.notion.so/simonbrundin/Livsappen-5ab9b84ddbdc4ce5977261847d855974?pvs=4">
+          Notion
+        </a>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-[-.02em]">
           Hej Sophie :)
         </h1>

@@ -18,7 +18,7 @@ export default function Home() {
           Notion
         </a>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-[-.02em]">
-          Hej Sophie :)
+          Planeringsapp
         </h1>
         <h2>Det här behöver vi lösa innan vi kör igång:</h2>
         <TodoList />

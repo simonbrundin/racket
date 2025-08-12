@@ -8,6 +8,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -328,37 +329,42 @@ export default function TodoList() {
     setNewDeadline("");
   };
 
-  function handleDragEnd(event: any) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
-      setTodos((items) => {
-        const activeIndex = items.findIndex((item) => item.id === active.id);
-        const overIndex = items.findIndex((item) => item.id === over.id);
-        const newItems = arrayMove(items, activeIndex, overIndex);
+    if (!over || active.id === over.id) return;
 
-        const activeTodo = newItems.find((item) => item.id === active.id);
-        const overTodo = newItems.find((item) => item.id === over.id);
+    setTodos((items) => {
+      const activeId = String(active.id);
+      const overId = String(over.id);
 
-        if (activeTodo && overTodo) {
-          // Remove from old parent
-          activeTodo.parentIds.forEach((parentId) => {
-            const parent = newItems.find((item) => item.id === parentId);
-            if (parent) {
-              parent.childIds = parent.childIds.filter(
-                (childId) => childId !== active.id,
-              );
-            }
-          });
+      const activeIndex = items.findIndex((item) => item.id === activeId);
+      const overIndex = items.findIndex((item) => item.id === overId);
+      
+      if (activeIndex === -1 || overIndex === -1) return items;
+      
+      const newItems = arrayMove(items, activeIndex, overIndex);
+      const activeTodo = newItems[overIndex];
+      const overTodo = newItems[overIndex];
 
-          // Add to new parent
-          activeTodo.parentIds = [over.id];
-          overTodo.childIds.push(active.id);
-        }
+      if (activeTodo && overTodo) {
+        // Remove from old parents
+        activeTodo.parentIds.forEach((parentId) => {
+          const parent = newItems.find((item) => item.id === parentId);
+          if (parent) {
+            parent.childIds = parent.childIds.filter(
+              (childId) => childId !== activeId,
+            );
+          }
+        });
 
-        return newItems;
-      });
-    }
+        // Add to new parent
+        activeTodo.parentIds = [overId];
+        overTodo.childIds.push(activeId);
+      }
+
+      return newItems;
+    });
   }
 
   // Only count top-level tasks for progress

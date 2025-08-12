@@ -2,9 +2,9 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN bun install
 COPY . .
-RUN npm run build
+RUN bun run build
 
 # Production stage
 FROM gcr.io/distroless/nodejs20-debian12 AS runner

@@ -181,17 +181,20 @@ export default function TodoList() {
     });
   }, []);
 
-  const moveTodo = useCallback((direction: number) => {
-    if (selectedIndex === null) return;
-    const newIndex = selectedIndex + direction;
-    if (newIndex < 0 || newIndex >= todos.length) return;
+  const moveTodo = useCallback(
+    (direction: number) => {
+      if (selectedIndex === null) return;
+      const newIndex = selectedIndex + direction;
+      if (newIndex < 0 || newIndex >= todos.length) return;
 
-    const newTodos = Array.from(todos);
-    const [movedTodo] = newTodos.splice(selectedIndex, 1);
-    newTodos.splice(newIndex, 0, movedTodo);
-    setTodos(newTodos);
-    setSelectedIndex(newIndex);
-  }, [selectedIndex, todos]);
+      const newTodos = Array.from(todos);
+      const [movedTodo] = newTodos.splice(selectedIndex, 1);
+      newTodos.splice(newIndex, 0, movedTodo);
+      setTodos(newTodos);
+      setSelectedIndex(newIndex);
+    },
+    [selectedIndex, todos],
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor),

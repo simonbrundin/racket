@@ -2,6 +2,8 @@
 FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
 RUN bun install
 COPY . .
 RUN bun run build

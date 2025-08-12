@@ -1,10 +1,15 @@
 # Build stage
 FROM node:20-slim AS builder
 WORKDIR /app
-COPY package*.json ./
+# Installera Bun 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  curl ca-certificates unzip \
+  && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:$PATH"
-RUN bun install
+ENV PATH="/root/.bun/bin:${PATH}"
+# Bygg
+COPY package*.json ./
+RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 

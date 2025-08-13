@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plan-app
+spec:
+  replicas: 2 # Starta med 2 poddar
+  selector:
+    matchLabels:
+      app: plan-app
+  template:
+    metadata:
+      labels:
+        app: plan-app
+    spec:
+      containers:
+        - name: plan-app
+          image: simonbrundin/plan
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "128Mi" # Konservativa defaults
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

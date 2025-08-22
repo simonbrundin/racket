@@ -1,0 +1,179 @@
+name: PR Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'deployment/**'
+  pull_request:
+    types: [closed]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up environment variables
+      run: |
+        echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+        echo "ENV_NAME=pr-${{ github.event.number }}" >> $GITHUB_ENV
+        echo "NAMESPACE=plan-pr-${{ github.event.number }}" >> $GITHUB_ENV
+        echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.sha }}" >> $GITHUB_ENV
+        echo "PREVIEW_URL=https://plan-pr-${{ github.event.number }}.preview.yourdomain.com" >> $GITHUB_ENV
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}
+
+    - name: Setup Kustomize
+      uses: imranismail/setup-kustomize@v2
+
+    - name: Create ephemeral environment manifests
+      run: |
+        # Skapa temporär katalog för denna PR
+        mkdir -p /tmp/pr-${{ env.PR_NUMBER }}
+        
+        # Kopiera template-ephemeral overlay
+        cp -r deployment/kustomize/overlays/template-ephemeral/* /tmp/pr-${{ env.PR_NUMBER }}/
+        
+        # Ersätt placeholders i kustomization.yaml
+        sed -i "s/NAMESPACE_PLACEHOLDER/${{ env.NAMESPACE }}/g" /tmp/pr-${{ env.PR_NUMBER }}/kustomization.yaml
+        sed -i "s/IMAGE_TAG_PLACEHOLDER/${{ env.IMAGE_TAG }}/g" /tmp/pr-${{ env.PR_NUMBER }}/kustomization.yaml
+        sed -i "s/ENV_NAME_PLACEHOLDER/${{ env.ENV_NAME }}/g" /tmp/pr-${{ env.PR_NUMBER }}/kustomization.yaml
+        
+        # Ersätt placeholders i patches
+        find /tmp/pr-${{ env.PR_NUMBER }} -name "*.yaml" -exec sed -i "s/PREVIEW_HOST_PLACEHOLDER/plan-pr-${{ github.event.number }}.preview.yourdomain.com/g" {} \;
+        
+        # Bygg manifests
+        cd /tmp/pr-${{ env.PR_NUMBER }}
+        kustomize build . > /tmp/pr-manifests.yaml
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+        export KUBECONFIG=/tmp/kubeconfig
+        kubectl config current-context
+
+    - name: Create namespace if not exists
+      run: |
+        export KUBECONFIG=/tmp/kubeconfig
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Deploy to ephemeral environment
+      run: |
+        export KUBECONFIG=/tmp/kubeconfig
+        kubectl apply -f /tmp/pr-manifests.yaml -n ${{ env.NAMESPACE }}
+        
+        # Vänta på att deployment blir ready
+        kubectl rollout status deployment/plan -n ${{ env.NAMESPACE }} --timeout=300s
+
+    - name: Comment PR with preview URL
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('🚀 Preview Environment')
+          );
+          
+          const body = `🚀 **Preview Environment Ready!**
+          
+          - **Environment**: \`${{ env.ENV_NAME }}\`
+          - **Namespace**: \`${{ env.NAMESPACE }}\`
+          - **Preview URL**: [${{ env.PREVIEW_URL }}](${{ env.PREVIEW_URL }})
+          - **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}\`
+          
+          The environment will be automatically cleaned up when this PR is closed.`;
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+          }
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+    - name: Set up environment variables
+      run: |
+        echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+        echo "NAMESPACE=plan-pr-${{ github.event.number }}" >> $GITHUB_ENV
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > /tmp/kubeconfig
+        export KUBECONFIG=/tmp/kubeconfig
+
+    - name: Delete ephemeral environment
+      run: |
+        export KUBECONFIG=/tmp/kubeconfig
+        kubectl delete namespace ${{ env.NAMESPACE }} --ignore-not-found=true
+
+    - name: Comment PR about cleanup
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: `🧹 **Environment Cleaned Up**
+            
+            The preview environment \`plan-pr-${{ github.event.number }}\` has been deleted.`
+          });

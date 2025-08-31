@@ -4,6 +4,7 @@ resources:
   - ../../base
   - HTTP-route.yaml
   - service.yaml
+  - db.yaml
 
 namespace: plan
 

@@ -5,6 +5,7 @@ resources:
   - HTTP-route.yaml
   - service.yaml
   - db.yaml
+  - db-secret.yaml
 
 namespace: plan
 

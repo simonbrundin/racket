@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: hello
+  namespace: argo-workflows
 spec:
   serviceAccountName: argo-workflow # this is the service account that the workflow will run with
   entrypoint: main # the first template to run in the workflows

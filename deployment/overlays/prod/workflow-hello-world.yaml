@@ -14,5 +14,3 @@ spec:
           templateRef:
             name: pr-open-template
             template: all-steps
-  workflowTemplateRef:
-    name: pr-open-template

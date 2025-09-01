@@ -1,14 +1,16 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: hello
+  name: say-hello
   namespace: argo-workflows #test
 spec:
   serviceAccountName: argo-workflow # this is the service account that the workflow will run with
-  entrypoint: main # the first template to run in the workflows
+  entrypoint: all-steps # the first template to run in the workflows
   templates:
-    - name: main
-      container: # this is a container template
-        image: busybox # this is the image to run
-        command: ["echo"]
-        args: ["hello world"]
+    - name: all-steps
+      dag:
+      tasks:
+        - name: say-hello
+          templateRef:
+            name: pr-open
+            template: say-hello

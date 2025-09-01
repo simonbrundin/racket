@@ -14,3 +14,4 @@ spec:
           templateRef:
             name: pr-open-template
             template: all-steps
+            clusterScope: true

@@ -1,4 +1,0 @@
-{
-  "name": "plan",
-  "description": "A Next.js and TypeScript to-do app with Radix UI and Tailwind CSS. Includes Docker, Kubernetes, and CI configurations. The to-do list is currently hardcoded, and the next logical step is a database connection."
-}

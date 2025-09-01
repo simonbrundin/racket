@@ -9,6 +9,7 @@ resources:
   - push-secret.yaml
   - db-schema.yaml
   - password-generator.yaml
+  - workflow-hello-world.yaml
 
 namespace: plan
 

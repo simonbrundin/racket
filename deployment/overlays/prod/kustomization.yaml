@@ -10,7 +10,8 @@ resources:
   - db-schema.yaml
   - password-generator.yaml
   - workflow-hello-world.yaml
-  - workflow-sa.yaml  
+  - workflow-sa.yaml
+  - workflow-rolebinding.yaml
 
 namespace: plan
 

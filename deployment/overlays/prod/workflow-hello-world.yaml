@@ -2,16 +2,16 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: pr-open
-  namespace: argo-workflows #test
+  namespace: plan
 spec:
-  serviceAccountName: argo-workflow # this is the service account that the workflow will run with
-  entrypoint: all-steps # the first template to run in the workflows
+  entrypoint: all-steps
+  serviceAccountName: argo-workflow
   templates:
     - name: all-steps
       dag:
-      tasks:
-        - name: pr-open
-          templateRef:
-            name: pr-open-template
-            template: all-steps
-            clusterScope: true
+        tasks:
+          - name: pr-open
+            templateRef:
+              clusterScope: true
+              name: pr-open-template
+              template: all-steps

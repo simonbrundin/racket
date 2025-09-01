@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: say-hello
+  name: pr-open
   namespace: argo-workflows #test
 spec:
   serviceAccountName: argo-workflow # this is the service account that the workflow will run with
@@ -10,7 +10,9 @@ spec:
     - name: all-steps
       dag:
       tasks:
-        - name: say-hello
+        - name: pr-open
           templateRef:
-            name: pr-open
-            template: say-hello
+            name: pr-open-template
+            template: all-steps
+  workflowTemplateRef:
+    name: pr-open

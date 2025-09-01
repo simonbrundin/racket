@@ -4,7 +4,6 @@ metadata:
   name: hello
 spec:
   serviceAccountName: argo-workflow # this is the service account that the workflow will run with
-  namespace: argo-workflows
   entrypoint: main # the first template to run in the workflows
   templates:
     - name: main

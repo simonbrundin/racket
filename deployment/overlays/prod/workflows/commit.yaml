@@ -13,6 +13,10 @@ spec:
       filters:
         data:
           # matcha full repository name "owner/name"
+          - path: headers.X-Github-Event
+            type: string
+            value:
+              - push
           - path: body.repository.full_name
             type: string
             value:
@@ -22,10 +26,6 @@ spec:
             type: string
             value:
               - refs/heads/main
-          - path: body.head_commit.id
-            type: string
-            value:
-              - ".+"
   triggers:
     - template:
         name: argo-workflow-trigger

@@ -22,6 +22,10 @@ spec:
             type: string
             value:
               - refs/heads/main
+          - path: body.head_commit.id
+            type: string
+            value:
+              - ".+"
   triggers:
     - template:
         name: argo-workflow-trigger

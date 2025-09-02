@@ -13,7 +13,7 @@ resources:
   # - workflow-sa.yaml
   # - workflow-rolebinding.yaml
   # - workflows/commit.yaml
-  # tests ggsdfsdhfsh asjj
+  # tests ggsdfsdhfsh asjjjsj
   # - workflows/eventbus.yaml
 
 namespace: plan

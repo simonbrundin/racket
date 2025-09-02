@@ -51,6 +51,8 @@ spec:
                       value: "ditt-github-token"
                     - name: repo-owner
                       value: "simonbrundin"
+                    - name: repo-name
+                      value: "plan"
                     # test
                 templates:
                   - name: entrypoint

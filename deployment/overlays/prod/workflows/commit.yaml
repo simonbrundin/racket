@@ -40,12 +40,13 @@ spec:
                 generateName: commit-stage-
                 namespace: plan
               spec:
-                entrypoint: all-steps
+                entrypoint: entrypoint
                 templates:
-                  - name: all-steps
-                    templateRef:
-                      name: commit-stage-template
-                      template: all-steps
-                      clusterScope:
-                        true
+                  - name: entrypoint
+                    steps: # You should only reference external "templates" in a "steps" or "dag" "template".
+                      - - name: start
+                          templateRef:
+                            name: commit-stage-template
+                            template: all-steps
+                            clusterScope: true
                         # sdftestsddffsdsdffsdf

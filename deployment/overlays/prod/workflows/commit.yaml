@@ -24,6 +24,7 @@ spec:
               - refs/heads/main
           - path: body.head_commit.id
             type: string
+            # string-värden tolkas som regex i data-filter — ".+" matchar 1 eller fler tecken
             value:
               - ".+"
   triggers:

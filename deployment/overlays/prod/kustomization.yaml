@@ -4,23 +4,9 @@ resources:
   - ../../base
   - HTTP-route.yaml
   - service.yaml
-  - db.yaml
-  - db-secret.yaml
-  - push-secret.yaml
-  - db-schema.yaml
-  - password-generator.yaml
-  # - workflow-hello-world.yaml
-  # - workflow-sa.yaml
-  # - workflow-rolebinding.yaml
-  # - workflows/commit.yaml
-  # tests ggsdfsdhfsh asjjjsjsdjfja 
-  # - workflows/eventbus.yaml
-
-namespace: plan
-
+  - db
+patches:
+  - path: patches
 images:
   - name: simonbrundin/plan
     newTag: "0.0.11"
-
-patches:
-  - path: patch.yaml

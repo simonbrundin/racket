@@ -43,10 +43,8 @@ spec:
                 entrypoint: entrypoint
                 arguments:
                   parameters:
-                    - name: repo-owner
-                      value: "ditt-github-användarnamn"
-                    - name: repo-name
-                      value: "ditt-repo-namn"
+                    - name: repo-url
+                      value: "github.com/simonbrundin/plan.git"
                     - name: git-commit
                       value: "commit-sha-eller-tag"
                     - name: github-token

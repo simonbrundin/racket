@@ -54,10 +54,14 @@ spec:
                     - name: repo-name
                       value: "plan"
                     # testssd
-                volumes: # Defines the volume - Only available within the same workflow execution (ephemeral storage)
-                  - name: repo
-                    persistentVolumeClaim:
-                      claimName: plan-repo
+                volumeClaimTemplates: # define volume, same syntax as k8s Pod spec
+                  - metadata:
+                      name: repo # name of volume claim
+                    spec:
+                      accessModes: ["ReadWriteOnce"]
+                      resources:
+                        requests:
+                          storage: 1Gi
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

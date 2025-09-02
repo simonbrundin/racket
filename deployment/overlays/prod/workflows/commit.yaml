@@ -40,11 +40,10 @@ spec:
                 generateName: commit-stage-
                 namespace: plan
               spec:
-                entrypoint: commit-stage
+                entrypoint: all-steps
                 templates:
-                  - name: commit-stage
-                    templareRef:
-                      name: all-steps
-                      template: commit-stage-template
-                      clusterScope: true
-                    # testsdf
+                  - name: all-steps
+                    templateRef:
+                      name: commit-stage-template
+                      template: all-steps
+                      # testsdf

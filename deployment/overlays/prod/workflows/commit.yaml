@@ -41,6 +41,16 @@ spec:
                 namespace: plan
               spec:
                 entrypoint: entrypoint
+                arguments:
+                  parameters:
+                    - name: repo-owner
+                      value: "ditt-github-användarnamn"
+                    - name: repo-name
+                      value: "ditt-repo-namn"
+                    - name: git-commit
+                      value: "commit-sha-eller-tag"
+                    - name: github-token
+                      value: "ditt-github-token"
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

@@ -49,6 +49,8 @@ spec:
                       value: "commit-sha-eller-tag"
                     - name: github-token
                       value: "ditt-github-token"
+                    - name: repo-owner
+                      value: "simonbrundin"
                     # test
                 templates:
                   - name: entrypoint

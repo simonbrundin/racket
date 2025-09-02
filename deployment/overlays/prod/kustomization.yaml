@@ -12,8 +12,8 @@ resources:
   - workflow-hello-world.yaml
   - workflow-sa.yaml
   - workflow-rolebinding.yaml
-  - workflows/commit.yaml
-  - workflows/eventbus.yaml
+  # - workflows/commit.yaml
+  # - workflows/eventbus.yaml
 
 namespace: plan
 

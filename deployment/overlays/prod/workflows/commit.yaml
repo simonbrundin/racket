@@ -53,7 +53,7 @@ spec:
                       value: "simonbrundin"
                     - name: repo-name
                       value: "plan"
-                    # test
+                    # tests
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

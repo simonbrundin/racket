@@ -46,4 +46,5 @@ spec:
                     templareRef:
                       name: all-steps
                       template: commit-stage-template
+                      clusterScope: true
                     # test

@@ -62,14 +62,14 @@ spec:
                             name: commit-stage-template
                             template: all-steps
                             clusterScope: true
-                          arguments:
-                            parameters:
-                              - name: repo-name
-                                value: "{{workflow.parameters.repo-name}}"
-                              - name: repo-url
-                                value: "{{workflow.parameters.repo-url}}"
-                              - name: github-token
-                                value: "{{workflow.parameters.github-token}}"
-                              - name: git-commit
-                                value: "{{workflow.parameters.git-commit}}"
+                          # arguments:
+                          #   parameters:
+                          #     - name: repo-name
+                          #       value: "{{workflow.parameters.repo-name}}"
+                          #     - name: repo-url
+                          #       value: "{{workflow.parameters.repo-url}}"
+                          #     - name: github-token
+                          #       value: "{{workflow.parameters.github-token}}"
+                          #     - name: git-commit
+                          #       value: "{{workflow.parameters.git-commit}}"
                         # sdcssdftestsddfskdssddfsdsdffsdfs g

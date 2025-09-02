@@ -45,9 +45,7 @@ spec:
                   - name: all-steps
                     steps:
                       - name: all-steps-template
-                  - name: all-steps-template
-                    templateRef:
-                      name: commit-stage-template
-                      template: all-steps
-                      clusterScope: true
+                        template: all-steps
+                        clusterScope: true
+
                       # sdftestsddffsdf

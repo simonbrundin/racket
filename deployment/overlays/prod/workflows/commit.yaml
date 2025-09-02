@@ -4,7 +4,7 @@ metadata:
   name: commit
 spec:
   template:
-    serviceAccountName: operate-workflow-sa
+    serviceAccountName: argo-workflow
   dependencies:
     - name: github
       eventSourceName: github

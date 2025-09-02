@@ -54,6 +54,9 @@ spec:
                     - name: repo-name
                       value: "plan"
                     # testss
+                volumes:
+                  - name: repo
+                    emptyDir: {}
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

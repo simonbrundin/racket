@@ -53,7 +53,7 @@ spec:
                       value: "simonbrundin"
                     - name: repo-name
                       value: "plan"
-                    # testss
+                    # testssd
                 volumeClaimTemplates:
                   - metadata:
                       name: work

@@ -2,7 +2,6 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   name: pr-open
-  namespace: plan
 spec:
   entrypoint: all-steps
   serviceAccountName: argo-workflow

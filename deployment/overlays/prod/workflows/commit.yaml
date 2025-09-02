@@ -54,14 +54,9 @@ spec:
                     - name: repo-name
                       value: "plan"
                     # testssd
-                volumeClaimTemplates:
-                  - metadata:
-                      name: work
-                    spec:
-                      accessModes: ["ReadWriteOnce"]
-                      resources:
-                        requests:
-                          storage: 1Gi
+                volumes: # Defines the volume - Only available within the same workflow execution (ephemeral storage)
+                  - name: work # Volume name
+                    emptyDir: {} # Empty directory volume
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".
@@ -81,4 +76,3 @@ spec:
                           #     - name: git-commit
                           #       value: "{{workflow.parameters.git-commit}}"
                         # sdcssdftestsddfskdssddfsdsdffsdfsdds
-                        # gssssSdsAsddadfjkdkdkdjdjjddjdjdjkdjjdjdkdkdkjkdajjdsddjjddddd kakdj

@@ -41,6 +41,7 @@ spec:
               spec:
                 entrypoint: whalesay
                 arguments:
+                  # test
                   parameters:
                     - name: message
                       value: hello world

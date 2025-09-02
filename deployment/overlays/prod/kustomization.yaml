@@ -6,7 +6,7 @@ resources:
   - service.yaml
   - db
 patches:
-  - path: patches
+  - path: patches/deployment.yaml
 images:
   - name: simonbrundin/plan
     newTag: "0.0.11"

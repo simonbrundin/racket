@@ -22,10 +22,10 @@ spec:
             value:
               - simonbrundin/plan
           # matcha branch (refs/heads/<branch>)
-          - path: body.ref
-            type: string
-            value:
-              - refs/heads/main
+          # - path: body.baseref
+          #   type: string
+          #   value:
+          #     - refs/heads/main
           # Test
   triggers:
     - template:
@@ -37,11 +37,11 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                name: special-trigger
+                generateName: commit-
+                namespace: plan
               spec:
                 entrypoint: whalesay
                 arguments:
-                  # test
                   parameters:
                     - name: message
                       value: hello world

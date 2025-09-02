@@ -49,6 +49,7 @@ spec:
                       value: "commit-sha-eller-tag"
                     - name: github-token
                       value: "ditt-github-token"
+                    # test
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

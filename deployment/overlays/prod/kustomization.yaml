@@ -9,9 +9,9 @@ resources:
   - push-secret.yaml
   - db-schema.yaml
   - password-generator.yaml
-  - workflow-hello-world.yaml
-  - workflow-sa.yaml
-  - workflow-rolebinding.yaml
+  # - workflow-hello-world.yaml
+  # - workflow-sa.yaml
+  # - workflow-rolebinding.yaml
   # - workflows/commit.yaml
   # tests ggsdfsdhfsh asjj
   # - workflows/eventbus.yaml

@@ -55,9 +55,9 @@ spec:
                       value: "plan"
                     # testssd
                 volumes: # Defines the volume - Only available within the same workflow execution (ephemeral storage)
-                  - name: work
+                  - name: repo
                     persistentVolumeClaim:
-                      claimName: workflow-commit
+                      claimName: plan-repo
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".

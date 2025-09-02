@@ -26,6 +26,7 @@ spec:
             type: string
             value:
               - refs/heads/main
+          # Test
   triggers:
     - template:
         name: argo-workflow-trigger

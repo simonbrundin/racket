@@ -37,25 +37,12 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: commit-
+                generateName: commit-stage-
                 namespace: plan
               spec:
-                entrypoint: whalesay
-                arguments:
-                  parameters:
-                    - name: message
-                      value: hello world
+                entrypoint: commit-stage
                 templates:
-                  - name: whalesay
-                    inputs:
-                      parameters:
-                        - name: message
-                    container:
-                      image: docker/whalesay:latest
-                      command: [cowsay]
-                      args: ["{{inputs.parameters.message}}"]
-          parameters:
-            - src:
-                dependencyName: github
-                dataKey: body
-              dest: spec.arguments.parameters.0.value
+                  - name: commit-stage
+                    templareRef:
+                      name: all-steps
+                      template: commit-stage-template

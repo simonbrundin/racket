@@ -46,4 +46,5 @@ spec:
                     templateRef:
                       name: commit-stage-template
                       template: all-steps
+                      clusterScope: true
                       # testsddff

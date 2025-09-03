@@ -58,7 +58,7 @@ spec:
                   - metadata:
                       name: repo # name of volume claim
                     spec:
-                      accessModes: ["ReadWriteOnce"]
+                      accessModes: ["ReadWriteMany"]
                       resources:
                         requests:
                           storage: 1Gi

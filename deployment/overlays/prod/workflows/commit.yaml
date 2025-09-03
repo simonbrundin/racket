@@ -54,17 +54,17 @@ spec:
                     - name: repo-name
                       value: "plan"
                     # testssd
-                # volumeClaimTemplates: # define volume, same syntax as k8s Pod spec
-                #   - metadata:
-                #       name: repo # name of volume claim
-                #     spec:
-                #       accessModes: ["ReadWriteMany"]
-                #       resources:
-                #         requests:
-                #           storage: 2Gi
-                volumes:
-                  - name: repo
-                    emptyDir: {}
+                volumeClaimTemplates: # define volume, same syntax as k8s Pod spec
+                  - metadata:
+                      name: repo # name of volume claim
+                    spec:
+                      accessModes: ["ReadWriteMany"]
+                      resources:
+                        requests:
+                          storage: 2Gi
+                # volumes:
+                #   - name: repo
+                #     emptyDir: {}
                 templates:
                   - name: entrypoint
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".
@@ -84,4 +84,4 @@ spec:
                           #     - name: git-commit
                           #       value: "{{workflow.parameters.git-commit}}"
                         # sdcssdftestsddfskdssddfsdsdffsdfs
-# sdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+# sdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

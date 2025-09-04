@@ -18,25 +18,25 @@ spec:
           - path: body.repository.full_name
             type: string
             value: ["simonbrundin/plan"]
-    - name: frontend
-      eventSourceName: github
-      eventName: with-api-credentials
-      filters:
-        dataLogicalOperator: "or"
-        data:
-          - path: body.head_commit.modified..
-            type: string
-            # regex: filer som börjar med "frontend/"
-            value:
-              - "frontend/.*"
-          - path: body.head_commit.added..
-            type: string
-            value:
-              - "frontend/.*"
-          - path: body.head_commit.removed..
-            type: string
-            value:
-              - "frontend/.*"
+    # - name: frontend
+    #   eventSourceName: github
+    #   eventName: with-api-credentials
+    #   filters:
+    #     dataLogicalOperator: "or"
+    #     data:
+    #       - path: body.head_commit.modified..
+    #         type: string
+    #         # regex: filer som börjar med "frontend/"
+    #         value:
+    #           - "frontend/.*"
+    #       - path: body.head_commit.added..
+    #         type: string
+    #         value:
+    #           - "frontend/.*"
+    #       - path: body.head_commit.removed..
+    #         type: string
+    #         value:
+    #           - "frontend/.*"
   triggers:
     - template:
         name: argo-workflow-trigger

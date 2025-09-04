@@ -73,7 +73,7 @@ spec:
                   - name: entrypoint
                     dag:
                       tasks:
-                        - name: frontend-steps
+                        - name: frontend
                           templateRef:
                             name: commit-stage-template
                             template: frontend

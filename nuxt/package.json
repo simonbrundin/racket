@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test:watch": "vitest",
-    "test": "nuxt prepare && vitest --run"
+    "test": "vitest --run --pool=threads --no-isolate --maxWorkers=1"
   },
   "dependencies": {
     "@nuxt/image": "1.11.0",

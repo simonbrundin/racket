@@ -24,16 +24,16 @@ spec:
       filters:
         dataLogicalOperator: "or"
         data:
-          - path: body.commits..modified
+          - path: body.head_commit.modified
             type: string
             # regex: filer som börjar med "frontend/"
             value:
               - "frontend/.*"
-          - path: body.commits..added
+          - path: body.head_commit.added
             type: string
             value:
               - "frontend/.*"
-          - path: body.commits..removed
+          - path: body.head_commit.removed
             type: string
             value:
               - "frontend/.*"

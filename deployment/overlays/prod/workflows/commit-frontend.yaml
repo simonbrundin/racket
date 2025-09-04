@@ -8,7 +8,6 @@ spec:
   dependencies:
     - name: push
       eventSourceName: github
-      # Detta måste matcha nyckeln du har i EventSource (i ditt exempel: "with-api-credentials")
       eventName: with-api-credentials
       filters:
         data:
@@ -63,42 +62,34 @@ spec:
                       value: "simonbrundin"
                     - name: repo-name
                       value: "plan"
-                    # testssd
-                # volumeClaimTemplates: # define volume, same syntax as k8s Pod spec
-                #   - metadata:
-                #       name: repo # name of volume claim
-                #     spec:
-                #       accessModes: ["ReadWriteMany"]
-                #       resources:
-                #         requests:
-                #           storage: 2Gi
                 volumes:
                   - name: repo
                     persistentVolumeClaim:
                       claimName: repo
-                # volumes:
-                #   - name: repo
-                #     emptyDir: {}
                 templates:
                   - name: entrypoint
-                    # dag:
-                    #   tasks:
-# d
-                    steps: # You should only reference external "templates" in a "steps" or "dag" "template".
-                      - - name: start
+                    dag:
+                      tasks:
+                        - name: create-repo
                           templateRef:
                             name: commit-stage-template
-                            template: all-steps
+                            template: create-repo
                             clusterScope: true
-                          # arguments:
-                          #   parameters:
-                          #     - name: repo-name
-                          #       value: "{{workflow.parameters.repo-name}}"
-                          #     - name: repo-url
-                          #       value: "{{workflow.parameters.repo-url}}"
-                          #     - name: github-token
-                          #       value: "{{workflow.parameters.github-token}}"
-                          #     - name: git-commit
-                          #       value: "{{workflow.parameters.git-commit}}"
-                        # sdcssdftestsddfskdssddfsdsdffsdfs
-  #aaaaca
+                        - name: frontend-steps
+                          templateRef:
+                            name: commit-stage-template
+                            template: frontend
+                            clusterScope: true
+                          dependencies: [create-repo]
+                          arguments:
+                            parameters:
+                              - name: repo-owner
+                                value: "{{workflow.parameters.repo-owner}}"
+                              - name: repo-name
+                                value: "{{workflow.parameters.repo-name}}"
+                              - name: repo-url
+                                value: "{{workflow.parameters.repo-url}}"
+                              - name: git-commit
+                                value: "{{workflow.parameters.git-commit}}"
+                              - name: github-token
+                                value: "{{workflow.parameters.github-token}}"

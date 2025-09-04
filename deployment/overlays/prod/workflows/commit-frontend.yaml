@@ -8,7 +8,6 @@ spec:
   dependencies:
     - name: push
       eventSourceName: github
-      # Detta måste matcha nyckeln du har i EventSource (i ditt exempel: "with-api-credentials")
       eventName: with-api-credentials
       filters:
         data:

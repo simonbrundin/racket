@@ -1,6 +1,6 @@
 # Nuxt Minimal Starter
 
-sssdaaa
+sssdaaaa
 
 Look at the
 [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to

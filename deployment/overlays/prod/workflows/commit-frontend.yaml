@@ -110,7 +110,7 @@ spec:
                       - - name: start
                           templateRef:
                             name: commit-stage-template
-                            template: create-repo
+                            template: frontend
                             clusterScope: true
                           arguments:
                             parameters:

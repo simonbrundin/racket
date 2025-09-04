@@ -82,10 +82,10 @@ spec:
                   - name: entrypoint
                     dag:
                       tasks:
-                        - name: create-repo
+                        - name: clone-repo
                           templateRef:
                             name: commit-stage-template
-                            template: create-repo
+                            template: clone-repo
                             clusterScope: true
                         # - name: frontend-steps
                         #   templateRef:

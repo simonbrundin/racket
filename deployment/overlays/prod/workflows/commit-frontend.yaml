@@ -6,27 +6,37 @@ spec:
   template:
     serviceAccountName: argo-workflow
   dependencies:
-    - name: github
+    - name: push
       eventSourceName: github
       # Detta måste matcha nyckeln du har i EventSource (i ditt exempel: "with-api-credentials")
       eventName: with-api-credentials
       filters:
         data:
-          # matcha full repository name "owner/name"
           - path: headers.X-Github-Event
             type: string
-            value:
-              - push
+            value: ["push"]
           - path: body.repository.full_name
             type: string
+            value: ["simonbrundin/plan"]
+    - name: frontend
+      eventSourceName: github
+      eventName: with-api-credentials
+      filters:
+        dataLogicalOperator: "or"
+        data:
+          - path: body.commits..modified
+            type: string
+            # regex: filer som börjar med "frontend/"
             value:
-              - simonbrundin/plan
-          # matcha branch (refs/heads/<branch>)
-          # - path: body.baseref
-          #   type: string
-          #   value:
-          #     - refs/heads/main
-          # Tsdfsdest
+              - "frontend/.*"
+          - path: body.commits..added
+            type: string
+            value:
+              - "frontend/.*"
+          - path: body.commits..removed
+            type: string
+            value:
+              - "frontend/.*"
   triggers:
     - template:
         name: argo-workflow-trigger
@@ -71,6 +81,9 @@ spec:
                 #     emptyDir: {}
                 templates:
                   - name: entrypoint
+                    dag:
+                      tasks:
+
                     steps: # You should only reference external "templates" in a "steps" or "dag" "template".
                       - - name: start
                           templateRef:
@@ -88,4 +101,4 @@ spec:
                           #     - name: git-commit
                           #       value: "{{workflow.parameters.git-commit}}"
                         # sdcssdftestsddfskdssddfsdsdffsdfs
-#aaaaca
+  #aaaaca

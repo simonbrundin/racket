@@ -78,24 +78,24 @@ spec:
                             name: commit-stage-template
                             template: clone-repo
                             clusterScope: true
-                        # - name: frontend-steps
-                        #   templateRef:
-                        #     name: commit-stage-template
-                        #     template: frontend
-                        #     clusterScope: true
-                        #   dependencies: [clone-repo]
-                        #   arguments:
-                        #     parameters:
-                        #       - name: repo-owner
-                        #         value: "{{workflow.parameters.repo-owner}}"
-                        #       - name: repo-name
-                        #         value: "{{workflow.parameters.repo-name}}"
-                        #       - name: repo-url
-                        #         value: "{{workflow.parameters.repo-url}}"
-                        #       - name: git-commit
-                        #         value: "{{workflow.parameters.git-commit}}"
-                        #       - name: github-token
-                        #         value: "{{workflow.parameters.github-token}}"
+                        - name: frontend
+                          templateRef:
+                            name: commit-stage-template
+                            template: frontend
+                            clusterScope: true
+                          dependencies: [clone-repo]
+                          arguments:
+                            parameters:
+                              - name: repo-owner
+                                value: "{{workflow.parameters.repo-owner}}"
+                              - name: repo-name
+                                value: "{{workflow.parameters.repo-name}}"
+                              - name: repo-url
+                                value: "{{workflow.parameters.repo-url}}"
+                              - name: git-commit
+                                value: "{{workflow.parameters.git-commit}}"
+                              - name: github-token
+                                value: "{{workflow.parameters.github-token}}"
 
                     # steps: # You should only reference external "templates" in a "steps" or "dag" "template".
                     #   - - name: start

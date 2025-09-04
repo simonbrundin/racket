@@ -23,19 +23,11 @@ spec:
       filters:
         dataLogicalOperator: "or"
         data:
-          - path: body.head_commit.modified..
+          - path: "[body.commits.#.modified.#()#,body.commits.#.added.#()#,body.commits.#.removed.#()#]"
             type: string
-            # regex: filer som börjar med "frontend/"
+            comparator: "~"
             value:
-              - "frontend/.*"
-          - path: body.head_commit.added..
-            type: string
-            value:
-              - "frontend/.*"
-          - path: body.head_commit.removed..
-            type: string
-            value:
-              - "frontend/.*"
+              - "^frontend/.*"
   triggers:
     - template:
         name: argo-workflow-trigger

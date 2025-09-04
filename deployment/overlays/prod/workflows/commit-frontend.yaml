@@ -23,11 +23,10 @@ spec:
       filters:
         dataLogicalOperator: "or"
         data:
-          - path: "[body.commits.#.modified.#()#,body.commits.#.added.#()#,body.commits.#.removed.#()#]"
+          - path: '[body.commits.#.modified.#(%"*frontend*")#,body.commits.#.added.#(%"*frontend*")#,body.commits.#.removed.#(%"*frontend*")#]'
             type: string
-            comparator: "~"
             value:
-              - "^frontend/.*"
+              - "(\\bfrontend/*)"
   triggers:
     - template:
         name: argo-workflow-trigger

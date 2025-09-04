@@ -73,11 +73,17 @@ spec:
                   - name: entrypoint
                     dag:
                       tasks:
-                        - name: frontend
+                        - name: clone-repo
+                          templateRef:
+                            name: commit-stage-template
+                            template: clone-repo
+                            clusterScope: true
+                        - name: frontend-steps
                           templateRef:
                             name: commit-stage-template
                             template: frontend
                             clusterScope: true
+                          dependencies: [clone-repo]
                           arguments:
                             parameters:
                               - name: repo-owner
@@ -107,4 +113,4 @@ spec:
                     #             value: "{{workflow.parameters.github-token}}"
                     #           - name: git-commit
                     #             value: "{{workflow.parameters.git-commit}}"
-# aaaagaa
+# aaaag

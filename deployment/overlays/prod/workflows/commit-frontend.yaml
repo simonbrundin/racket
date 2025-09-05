@@ -27,6 +27,7 @@ spec:
             type: string
             value:
               - "(\\bfrontend/*)"
+
   triggers:
     - template:
         name: argo-workflow-trigger
@@ -112,9 +113,9 @@ spec:
                     #             value: "{{workflow.parameters.github-token}}"
                     #           - name: git-commit
                     #             value: "{{workflow.parameters.git-commit}}"
-  # aaaagaaaaaaaa
-  parameters:
-    - src:
-        dependencyName: push
-        dataKey: body.head_commit.id
-      dest: spec.arguments.parameters.git-commit.value
+      # aaaagaaaaaaaa
+      parameters:
+        - src:
+            dependencyName: push
+            dataKey: body.head_commit.id
+          dest: spec.arguments.parameters.git-commit.value

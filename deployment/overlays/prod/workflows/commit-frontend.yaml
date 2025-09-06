@@ -47,7 +47,7 @@ spec:
                     - name: repo-url
                       value: "github.com/simonbrundin/plan.git"
                     - name: git-commit
-                      value: "commit-sha-eller-tag"
+                      value: ""
                     - name: github-token
                       value: "ditt-github-token"
                     - name: repo-owner
@@ -118,4 +118,4 @@ spec:
             dependencyName: push
             dataKey: body.head_commit.id
           dest: spec.arguments.parameters.git-commit.value
-          # aaaagaaaaaaaaaaa
+          # aaaagaaaaaaaaaaaa

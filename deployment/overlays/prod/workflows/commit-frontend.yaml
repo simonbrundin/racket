@@ -54,6 +54,8 @@ spec:
                       value: "simonbrundin"
                     - name: repo-name
                       value: "plan"
+                    - name: image-registry
+                      value: "ghcr.io/{{workflow.parameters.repo-owner}}"
                     # testssd
                 # volumeClaimTemplates: # define volume, same syntax as k8s Pod spec
                 #   - metadata:

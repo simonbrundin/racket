@@ -1,14 +1,15 @@
 import { defineConfig } from "vitest/config";
 import { defineVitestProject } from "@nuxt/test-utils/config";
 
-export default defineConfig({
+export default defineConfig(async () => ({
   test: {
     projects: [
       {
+        name: "unit",
         test: {
-          name: "unit",
           include: ["test/{e2e,unit}/*.{test,spec}.ts"],
           environment: "node",
+          setupFiles: ["./test/setup.ts"],
         },
       },
       await defineVitestProject({
@@ -20,4 +21,4 @@ export default defineConfig({
       }),
     ],
   },
-});
+}));

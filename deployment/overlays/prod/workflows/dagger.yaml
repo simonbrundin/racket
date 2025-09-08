@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: ci-dagger
+spec:
+  template:
+    serviceAccountName: argo-workflow
+  dependencies:
+    - name: push
+      eventSourceName: github
+      eventName: with-api-credentials
+      filters:
+        data:
+          - path: headers.X-Github-Event
+            type: string
+            value: ["push"]
+          - path: body.repository.full_name
+            type: string
+            value: ["simonbrundin/plan"]
+    - name: frontend
+      eventSourceName: github
+      eventName: with-api-credentials
+      filters:
+        dataLogicalOperator: "or"
+        data:
+          - path: '[body.commits.#.modified.#(%"*frontend*")#,body.commits.#.added.#(%"*frontend*")#,body.commits.#.removed.#(%"*frontend*")#]'
+            type: string
+            value:
+              - "(\\bfrontend/*)"
+
+  triggers:
+    - template:
+        name: argo-workflow-trigger
+        argoWorkflow:
+          operation: submit
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: commit-stage-
+                namespace: argo-events
+              spec:
+                entrypoint: entrypoint
+                templates:
+                  - name: entrypoint
+                    dag:
+                      tasks:
+                        - name: dagger-run
+                          templateRef:
+                            name: dagger
+                            template: dagger-run
+                            clusterScope: true

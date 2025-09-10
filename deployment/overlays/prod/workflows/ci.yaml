@@ -69,6 +69,6 @@ spec:
                       tasks:
                         - name: ci
                           templateRef:
-                            name: ci
-                            template: deployment-pipeline
+                            name: deployment-pipeline
+                            template: ci
                             clusterScope: true

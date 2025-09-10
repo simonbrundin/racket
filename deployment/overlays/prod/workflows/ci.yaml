@@ -39,7 +39,7 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: ci-
+                generateName: plan-ci-
                 namespace: argo-events
               spec:
                 entrypoint: entrypoint

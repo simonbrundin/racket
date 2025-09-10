@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: plan-app
-          image: simonbrundin/plan
+          image: ghcr.io/simonbrundin/plan
           ports:
             - containerPort: 3000
           resources:

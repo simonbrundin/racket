@@ -8,23 +8,31 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test:watch": "vitest",
-    "test": "vitest --run"
+    "test:watch": "nodemon --exec 'npx cucumber-js' --ext feature,js,vue,ts",
+    "test": "cucumber-js"
   },
   "dependencies": {
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "3.3.2",
+    "nodemon": "^3.1.10",
     "nuxt": "^4.0.3",
     "nuxt-auth-utils": "0.5.23",
+    "tinypool": "^2.0.0",
     "typescript": "^5.6.3",
     "vue": "^3.5.20",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^12.2.0",
     "@nuxt/test-utils": "^3.19.2",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^18.0.1",
     "playwright-core": "^1.55.0",
     "vitest": "^3.2.4"
+  },
+  "bun": {
+    "overrides": {
+      "vite": "npm:rolldown-vite@latest"
+    }
   }
 }

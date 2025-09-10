@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../base
   - HTTP-route.yaml
+  - github-secret.yaml
   - service.yaml
   - db
 patches:

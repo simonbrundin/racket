@@ -8,4 +8,7 @@ export default defineNuxtConfig({
     "nuxt-auth-utils",
     "@nuxt/test-utils/module",
   ],
+  nitro: {
+    preset: "bun",
+  },
 });

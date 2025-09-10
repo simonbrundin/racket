@@ -1,28 +1,26 @@
-# Steg 1: Byggstadium med full Bun image
+# use the official Bun image
+# see all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:1 AS build
 WORKDIR /app
 
 COPY package.json bun.lock ./
+
+# use ignore-scripts to avoid builting node modules like better-sqlite3
 RUN bun install --frozen-lockfile --ignore-scripts
 
+# Copy the entire project
 COPY . .
-RUN bun run build
 
-# Steg 2: Minimal runtime image baserad på Alpine
-FROM alpine:latest AS runtime
-RUN apk add --no-cache libstdc++ libgcc
+RUN bun --bun run build
 
+# copy production dependencies and source code into final image
+FROM oven/bun:1 AS production
 WORKDIR /app
 
-# Kopiera Bun binären från build image
-COPY --from=build /usr/local/bin/bun /usr/local/bin/bun
-
-# Kopiera byggresultatet
+# Only `.output` folder is needed from the build stage
 COPY --from=build /app/.output /app
 
-# Sätt rättigheter (om nödvändigt)
-RUN chmod +x /usr/local/bin/bun
+# run the app
+EXPOSE 3000/tcp
+ENTRYPOINT [ "bun", "--bun", "run", "/app/server/index.mjs" ]
 
-EXPOSE 3000
-
-CMD ["bun", "run", "/app/server/index.mjs"]

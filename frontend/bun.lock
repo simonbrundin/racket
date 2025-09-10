@@ -9,6 +9,7 @@
         "nodemon": "^3.1.10",
         "nuxt": "^4.0.3",
         "nuxt-auth-utils": "0.5.23",
+        "ofetch": "^1.4.1",
         "tinypool": "^2.0.0",
         "typescript": "^5.6.3",
         "vue": "^3.5.20",

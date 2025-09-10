@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: repo
+  name: plan-repo
 spec:
   accessModes:
     - ReadWriteMany

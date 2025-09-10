@@ -42,6 +42,27 @@ spec:
                 namespace: argo-events
               spec:
                 entrypoint: entrypoint
+                arguments:
+                  parameters:
+                    - name: source-folder
+                      value: "frontend"
+                    - name: tag
+                      # TODO: hur löser jag att uppdatera tag och semver?
+                      value: "{{workflow.creationTimestamp.YYYYMMDD-HHmm}}"
+                    - name: repo-name
+                      value: "plan"
+                    - name: source-repo-url
+                      value: "github.com/simonbrundin/plan.git"
+                    - name: registry-address
+                      value: "ghcr.io/simonbrundin"
+                    - name: registry-username
+                      value: "simonbrundin"
+                    - name: registry-password-env
+                      value: GITHUB_TOKEN
+                volumes:
+                  - name: source-repo
+                    persistentVolumeClaim:
+                      claimName: plan-repo
                 templates:
                   - name: entrypoint
                     dag:

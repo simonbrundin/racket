@@ -59,13 +59,6 @@ spec:
                       value: "simonbrundin"
                     - name: registry-password-env
                       value: GITHUB_TOKEN
-                volumes:
-                  - name: source-repo
-                    persistentVolumeClaim:
-                      claimName: plan-repo
-                  - name: deployment-pipeline
-                    persistentVolumeClaim:
-                      claimName: deployment-pipeline
                 templates:
                   - name: entrypoint
                     dag:

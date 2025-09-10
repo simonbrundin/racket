@@ -9,5 +9,5 @@ resources:
 patches:
   - path: patches/deployment.yaml
 images:
-  - name: simonbrundin/plan
+  - name: ghcr.io/simonbrundin/plan
     newTag: "0.0.2"

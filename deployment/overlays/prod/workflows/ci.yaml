@@ -68,3 +68,10 @@ spec:
                             name: deployment-pipeline
                             template: ci
                             clusterScope: true
+                    volumes:
+                      - name: source-repo
+                        persistentVolumeClaim:
+                          claimName: plan-repo
+                      - name: deployment-pipeline
+                        persistentVolumeClaim:
+                          claimName: deployment-pipeline

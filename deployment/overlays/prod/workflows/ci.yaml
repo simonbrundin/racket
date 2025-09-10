@@ -76,3 +76,8 @@ spec:
                             name: deployment-pipeline
                             template: ci
                             clusterScope: true
+                          volumeMounts:
+                            - name: source-repo
+                              mountPath: /source-repo
+                            - name: deployment-pipeline
+                              mountPath: /deployment-pipeline

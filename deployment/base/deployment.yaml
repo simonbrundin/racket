@@ -12,6 +12,8 @@ spec:
       labels:
         app: plan-app
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: plan-app
           image: ghcr.io/simonbrundin/plan

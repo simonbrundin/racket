@@ -63,6 +63,9 @@ spec:
                   - name: source-repo
                     persistentVolumeClaim:
                       claimName: plan-repo
+                  - name: deployment-pipeline
+                    persistentVolumeClaim:
+                      claimName: deployment-pipeline
                 templates:
                   - name: entrypoint
                     dag:

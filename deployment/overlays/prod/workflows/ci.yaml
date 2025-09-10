@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: ci-dagger
+  name: ci
 spec:
   template:
     serviceAccountName: argo-workflow
@@ -38,7 +38,7 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: commit-stage-
+                generateName: ci-
                 namespace: argo-events
               spec:
                 entrypoint: entrypoint
@@ -46,8 +46,8 @@ spec:
                   - name: entrypoint
                     dag:
                       tasks:
-                        - name: dagger-run
+                        - name: ci
                           templateRef:
-                            name: dagger
-                            template: dagger-run
+                            name: ci
+                            template: deployment-pipeline
                             clusterScope: true

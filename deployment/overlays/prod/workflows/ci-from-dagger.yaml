@@ -31,7 +31,7 @@ spec:
 
   triggers:
     - template:
-        name: argo-workflow-trigger
+        name: argo-workflow-trigger-from-dagger
         argoWorkflow:
           operation: submit
           source:

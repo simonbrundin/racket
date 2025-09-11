@@ -43,7 +43,7 @@ jobs:
           dagger call ci \
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
-            --source-dir /source-repo/frontend \
+            --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
             --tag ${{ env.TAG }} \
             --username simonbrundin \
             --secret env:REGISTRY_PASSWORD

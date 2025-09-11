@@ -45,13 +45,13 @@ spec:
                 entrypoint: entrypoint
                 volumes:
                   - name: source-repo
-                    emptyDir: {}
-                    # persistentVolumeClaim:
-                    #   claimName: plan-repo
+                    # emptyDir: {}
+                    persistentVolumeClaim:
+                      claimName: plan-repo
                   - name: deployment-pipeline
-                    emptyDir: {}
-                    # persistentVolumeClaim:
-                    #   claimName: deployment-pipeline
+                    # emptyDir: {}
+                    persistentVolumeClaim:
+                      claimName: deployment-pipeline
                 arguments:
                   parameters:
                     - name: source-folder

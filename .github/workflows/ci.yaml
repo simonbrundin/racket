@@ -1,56 +1,70 @@
-name: Build and Push Docker Image to Docker Hub
-
-# on:
-#   push:
-#     branches:
-#       - main
-
+name: ci
+run-name: ci
+on:
+  push:
+    branches:
+      - main
+      - master
 jobs:
-  build-and-push:
+  build-container-image:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    services:
+      dagger-engine:
+        image: registry.dagger.io/engine:v0.18.16
+        options: --privileged
+        volumes:
+          - /run/dagger:/run/dagger
+          - /var/lib/dagger:/var/lib/dagger
     steps:
-      # Checka ut koden från repositoryt
-      - name: Checkout code
-        uses: actions/checkout@v4
-      # Versionsnummer
-      - name: Get next version
-        uses: reecetech/version-increment@2024.10.1
-        id: version
-        with:
-          scheme: semver
-          increment: patch
+      - name: Variables
+        run: echo "TAG=1.4.${{ github.run_number }}" >> "$GITHUB_ENV"
 
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
+      - name: Checkout source repo
+        uses: actions/checkout@v3
+        with:
+          path: source-repo
+
+      - name: Checkout deployment pipeline
+        uses: actions/checkout@v3
+        with:
+          repository: simonbrundin/deployment-pipeline
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: deployment-pipeline
+          ref: main
+
+      - name: Download Dagger CLI
+        run: |
+          curl -L https://github.com/dagger/dagger/releases/download/v0.18.16/dagger_v0.18.16_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+          chmod +x /usr/local/bin/dagger
+
+      - name: Run Dagger CI
+        run: |
+          cd deployment-pipeline/dagger-modules/pipeline
+          dagger call ci \
+            --image-name ${{ github.event.repository.name }} \
+            --registry-address c8n.io \
+            --source-dir ../../../source-repo \
+            --tag ${{ env.TAG }} \
+            --username vfarcic \
+            --secret env:REGISTRY_PASSWORD
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
-          WITH_V: false
-          DEFAULT_BUMP: patch
-          INITIAL_VERSION: 0.0.1
+          DAGGER_SESSION_HOST: "127.0.0.1:8080"
+          _EXPERIMENTAL_DAGGER_RUNNER_HOST: "unix:///run/dagger/engine.sock"
+          DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 
-      # Sätt upp QEMU för multi-plattformsbyggen (valfritt, om du behöver det)
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Commit changes
+        run: |
+          cd source-repo
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "Release ${{ env.TAG }} [skip ci]" || exit 0
 
-      # Sätt upp Docker Buildx för att bygga imagen
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # Logga in på Docker Hub med hemligheter
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - name: Push changes
+        uses: ad-m/github-push-action@master
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # Bygg och pusha Docker-imagen
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          platforms: linux/arm64
-          tags: simonbrundin/plan:${{ steps.version.outputs.version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          directory: source-repo

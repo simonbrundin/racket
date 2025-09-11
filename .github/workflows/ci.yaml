@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       dagger-engine:
-        image: registry.dagger.io/engine:v0.18.16
+        image: registry.dagger.io/engine:v0.18.17
         options: --privileged
         volumes:
           - /run/dagger:/run/dagger
@@ -34,7 +34,7 @@ jobs:
 
       - name: Download Dagger CLI
         run: |
-          curl -L https://github.com/dagger/dagger/releases/download/v0.18.16/dagger_v0.18.16_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+          curl -L https://github.com/dagger/dagger/releases/download/v0.18.17/dagger_v0.18.17_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
           chmod +x /usr/local/bin/dagger
 
       - name: Run Dagger CI
@@ -48,8 +48,6 @@ jobs:
             --username vfarcic \
             --secret env:REGISTRY_PASSWORD
         env:
-          DAGGER_SESSION_HOST: "127.0.0.1:8080"
-          _EXPERIMENTAL_DAGGER_RUNNER_HOST: "unix:///run/dagger/engine.sock"
           DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}

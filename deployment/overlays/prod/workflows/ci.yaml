@@ -52,6 +52,10 @@ spec:
                     # emptyDir: {}
                     persistentVolumeClaim:
                       claimName: deployment-pipeline
+                  - name: dagger-socket
+                    emptyDir: {}
+                  - name: dagger-storage
+                    emptyDir: {}
                 arguments:
                   parameters:
                     - name: source-folder

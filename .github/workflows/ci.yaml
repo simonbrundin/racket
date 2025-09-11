@@ -46,7 +46,8 @@ jobs:
             --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
             --tag ${{ env.TAG }} \
             --username simonbrundin \
-            --secret ${{ secrets.REGISTRY_PASSWORD }}
+            --secret ${{ secrets.REGISTRY_PASSWORD }} \
+            --multiArch
         env:
           DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

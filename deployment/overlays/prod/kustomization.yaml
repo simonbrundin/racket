@@ -10,4 +10,4 @@ patches:
   - path: patches/deployment.yaml
 images:
   - name: ghcr.io/simonbrundin/plan
-    newTag: "0.0.42"
+    newTag: "1.4.463"

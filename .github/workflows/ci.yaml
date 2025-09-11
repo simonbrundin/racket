@@ -42,10 +42,10 @@ jobs:
           cd deployment-pipeline/dagger-modules/pipeline
           dagger call ci \
             --image-name ${{ github.event.repository.name }} \
-            --registry-address c8n.io \
-            --source-dir ../../../source-repo \
+            --registry-address ghcr.io/simonbrundin \
+            --source-dir /source-repo/frontend \
             --tag ${{ env.TAG }} \
-            --username vfarcic \
+            --username simonbrundin \
             --secret env:REGISTRY_PASSWORD
         env:
           DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}

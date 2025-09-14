@@ -12,3 +12,6 @@ spec:
         semverConstraint: "*"
         strictSemvers: true
         allowTags: ^frontend-\d+\.\d+\.\d+$
+        credentials:
+          name: ghcr-creds
+

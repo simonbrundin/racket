@@ -4,4 +4,3 @@ resources:
   - frontend-warehouse.yaml
   - github-secret.yaml
   - frontend-stage-production.yaml
-

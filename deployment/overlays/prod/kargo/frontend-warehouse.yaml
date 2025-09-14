@@ -4,7 +4,7 @@ metadata:
   name: frontend-warehouse
   namespace: plan-pipeline # <-- ditt Project namespace
 spec:
-  interval: 1m
+  interval: 1m0s
   subscriptions:
     - image: # 👈 VIKTIGT
         repoURL: ghcr.io/simonbrundin/plan

@@ -1,6 +1,6 @@
 # Nuxt Minimal Starter
 
-mer tesc
+mer tescc
 
 Testa
 

@@ -17,9 +17,6 @@ jobs:
           - /run/dagger:/run/dagger
           - /var/lib/dagger:/var/lib/dagger
     steps:
-      - name: Variables
-        run: echo "TAG=1.4.${{ github.run_number }}" >> "$GITHUB_ENV"
-
       - name: Checkout source repo
         uses: actions/checkout@v3
         with:
@@ -53,7 +50,7 @@ jobs:
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
             --source-dir $GITHUB_WORKSPACE/source-repo/backend\
-            --tag ${{ env.TAG }} \
+            --tag ${{ env.RELEASE_VERSION }} \
             --username simonbrundin \
             --secret ${{ secrets.REGISTRY_PASSWORD }} \
             --multiArch

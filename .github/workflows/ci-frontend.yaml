@@ -21,9 +21,6 @@ jobs:
           - /run/dagger:/run/dagger
           - /var/lib/dagger:/var/lib/dagger
     steps:
-      - name: Variables
-        run: echo "TAG=1.4.${{ github.run_number }}" >> "$GITHUB_ENV"
-
       - name: Checkout source repo
         uses: actions/checkout@v3
         with:
@@ -44,7 +41,7 @@ jobs:
 
       - run: npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
 
       - name: Download Dagger CLI
         run: |
@@ -58,7 +55,7 @@ jobs:
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
             --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
-            --tag ${{ env.TAG }} \
+            --tag ${{ env.RELEASE_VERSION }} \
             --username simonbrundin \
             --secret ${{ secrets.REGISTRY_PASSWORD }} \
             --multiArch

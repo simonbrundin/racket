@@ -7,7 +7,20 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "nuxt-auth-utils",
     "@nuxt/test-utils/module",
+    "shadcn-nuxt",
+    "@nuxtjs/tailwindcss",
   ],
+  shadcn: {
+    /**
+     * Prefix for all the imported component
+     */
+    prefix: "",
+    /**
+     * Directory that the component lives in.
+     * @default "./components/ui"
+     */
+    componentDir: "./components/ui",
+  },
   nitro: {
     preset: "bun",
   },

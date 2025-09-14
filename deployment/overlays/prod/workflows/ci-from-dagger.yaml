@@ -18,16 +18,16 @@
 #           - path: body.repository.full_name
 #             type: string
 #             value: ["simonbrundin/plan"]
-#     - name: frontend
+#     - name: backend
 #       eventSourceName: github
 #       eventName: with-api-credentials
 #       filters:
 #         dataLogicalOperator: "or"
 #         data:
-#           - path: '[body.commits.#.modified.#(%"*frontend*")#,body.commits.#.added.#(%"*frontend*")#,body.commits.#.removed.#(%"*frontend*")#]'
+#           - path: '[body.commits.#.modified.#(%"*backend*")#,body.commits.#.added.#(%"*backend*")#,body.commits.#.removed.#(%"*backend*")#]'
 #             type: string
 #             value:
-#               - "(\\bfrontend/*)"
+#               - "(\\bbackend/*)"
 #
 #   triggers:
 #     - template:
@@ -51,7 +51,7 @@
 #                 arguments:
 #                   parameters:
 #                     - name: source-folder
-#                       value: "frontend"
+#                       value: "backend"
 #                     - name: tag
 #                       # TODO: hur löser jag att uppdatera tag och semver?
 #                       value: "{{workflow.creationTimestamp.YYYYMMDD-HHmm}}"

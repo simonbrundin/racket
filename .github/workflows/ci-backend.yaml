@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - "frontend/**"
+      - "backend/**"
 jobs:
-  ci-frontend:
+  ci-backend:
     runs-on: ubuntu-latest
     services:
       dagger-engine:
@@ -33,6 +33,10 @@ jobs:
           path: deployment-pipeline
           ref: main
 
+      - name: Download Dagger CLI
+        run: |
+          curl -L https://github.com/dagger/dagger/releases/download/v0.18.17/dagger_v0.18.17_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+          chmod +x /usr/local/bin/dagger
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,18 +46,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download Dagger CLI
-        run: |
-          curl -L https://github.com/dagger/dagger/releases/download/v0.18.17/dagger_v0.18.17_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
-          chmod +x /usr/local/bin/dagger
-
       - name: Run Dagger CI
         run: |
           cd deployment-pipeline/dagger-modules/pipeline
           dagger call ci \
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
-            --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
+            --source-dir $GITHUB_WORKSPACE/source-repo/backend\
             --tag ${{ env.TAG }} \
             --username simonbrundin \
             --secret ${{ secrets.REGISTRY_PASSWORD }} \

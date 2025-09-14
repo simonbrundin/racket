@@ -17,16 +17,16 @@ spec:
           - path: body.repository.full_name
             type: string
             value: ["simonbrundin/plan"]
-    - name: frontend
+    - name: backend
       eventSourceName: github
       eventName: with-api-credentials
       filters:
         dataLogicalOperator: "or"
         data:
-          - path: '[body.commits.#.modified.#(%"*frontend*")#,body.commits.#.added.#(%"*frontend*")#,body.commits.#.removed.#(%"*frontend*")#]'
+          - path: '[body.commits.#.modified.#(%"*backend*")#,body.commits.#.added.#(%"*backend*")#,body.commits.#.removed.#(%"*backend*")#]'
             type: string
             value:
-              - "(\\bfrontend/*)"
+              - "(\\bbackend/*)"
 
   triggers:
     - template:
@@ -81,10 +81,10 @@ spec:
                         #     name: commit-stage-template
                         #     template: clone-repo
                         #     clusterScope: true
-                        - name: frontend
+                        - name: backend
                           templateRef:
                             name: commit-stage-template
-                            template: frontend
+                            template: backend
                             clusterScope: true
                           arguments:
                             parameters:

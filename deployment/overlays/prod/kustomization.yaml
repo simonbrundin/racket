@@ -6,6 +6,7 @@ resources:
   - github-secret.yaml
   - service.yaml
   - db
+  - hasura
 patches:
   - path: patches/deployment.yaml
 images:

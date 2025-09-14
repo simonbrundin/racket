@@ -37,6 +37,7 @@
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^18.0.1",
     "playwright-core": "^1.55.0",
+    "semantic-release": "^24.2.8",
     "shadcn-nuxt": "^2.2.0",
     "vitest": "^3.2.4"
   },

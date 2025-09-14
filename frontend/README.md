@@ -1,7 +1,7 @@
 # Nuxt Minimal Starter
 
 mer tesccs
-s
+a
 Testa
 
 Look at the

@@ -40,7 +40,7 @@ jobs:
           node-version: 24
 
       - name: Install devDependencies
-        run: npm ci
+        run: npm install
         working-directory: source-repo/frontend
 
       - run: npx semantic-release

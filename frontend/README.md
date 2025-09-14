@@ -1,6 +1,6 @@
 # Nuxt Minimal Starter
 
-mer testa
+mer testaa
 
 Testa
 

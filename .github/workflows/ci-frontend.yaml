@@ -8,6 +8,10 @@ on:
       - "frontend/**"
 jobs:
   ci-frontend:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     services:
       dagger-engine:
@@ -36,7 +40,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
 
       - run: npx semantic-release
         env:

@@ -10,5 +10,5 @@ spec:
         repoURL: ghcr.io/simonbrundin/plan
         imageSelectionStrategy: SemVer
         semverConstraint: "*"
-        strictSemvers: true
+        strictSemvers: false
         allowTags: ^frontend-(\d+\.\d+\.\d+)$

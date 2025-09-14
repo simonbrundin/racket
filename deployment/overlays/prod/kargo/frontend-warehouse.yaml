@@ -11,4 +11,4 @@ spec:
         imageSelectionStrategy: SemVer
         semverConstraint: "*"
         strictSemvers: true
-        allowTags: ^frontend-\d+\.\d+\.\d+$
+        allowTags: ^frontend-(\d+\.\d+\.\d+)$

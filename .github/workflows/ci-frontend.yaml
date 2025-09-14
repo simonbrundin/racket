@@ -1,5 +1,5 @@
-name: ci
-run-name: ci
+name: CI - Frontend
+run-name: CI - Frontend
 on:
   push:
     branches:

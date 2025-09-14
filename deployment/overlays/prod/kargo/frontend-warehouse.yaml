@@ -7,9 +7,8 @@ spec:
   interval: 1m
   subscriptions:
     - image: # 👈 VIKTIGT
-        repoURL: ghcr.io/simonbrundin/plan # ex: ghcr.io/myorg/frontend
+        repoURL: ghcr.io/simonbrundin/plan
         imageSelectionStrategy: SemVer
         semverConstraint: "*"
-        tagFilter:
-          regex: "^frontend-(?P<version>\\d+\\.\\d+\\.\\d+)$"
-          versionCaptureGroup: "version"
+        strictSemvers: true
+        allowTags: ^frontend-\d+\.\d+\.\d+$

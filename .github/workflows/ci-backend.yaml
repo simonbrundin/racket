@@ -34,14 +34,20 @@ jobs:
         run: |
           curl -L https://github.com/dagger/dagger/releases/download/v0.18.17/dagger_v0.18.17_linux_amd64.tar.gz | tar -xz -C /usr/local/bin
           chmod +x /usr/local/bin/dagger
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
+
+      - name: Install devDependencies
+        run: npm install --legacy-peer-deps
+        working-directory: source-repo/frontend
 
       - run: npx semantic-release
+        working-directory: source-repo/frontend
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
 
       - name: Run Dagger CI
         run: |

@@ -39,7 +39,12 @@
     "playwright-core": "^1.55.0",
     "semantic-release": "^24.2.8",
     "shadcn-nuxt": "^2.2.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^12.0.0",
+    "@semantic-release/github": "^9.0.6",
+    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/release-notes-generator": "^12.0.0"
   },
   "bun": {
     "overrides": {

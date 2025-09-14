@@ -60,7 +60,7 @@ jobs:
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
             --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
-            --tag ${{ env.RELEASE_VERSION }} \
+            --tag frontend-${{ env.RELEASE_VERSION }} \
             --username simonbrundin \
             --secret ${{ secrets.REGISTRY_PASSWORD }} \
             --multiArch

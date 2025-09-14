@@ -7,8 +7,7 @@ spec:
   interval: 1m0s
   subscriptions:
     - image: # 👈 VIKTIGT
+        allowTags: ^frontend-(\d+\.\d+\.\d+)$
+        discoveryLimit: 20
+        imageSelectionStrategy: Lexical
         repoURL: ghcr.io/simonbrundin/plan
-        imageSelectionStrategy: SemVer
-        semverConstraint: "*"
-        strictSemvers: false
-        # allowTags: ^frontend-(\d+\.\d+\.\d+)$

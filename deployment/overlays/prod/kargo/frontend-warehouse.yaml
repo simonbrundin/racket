@@ -2,15 +2,14 @@ apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
 metadata:
   name: frontend-warehouse
-  namespace: plan-pipeline
+  namespace: plan-pipeline # <-- ditt Project namespace
 spec:
   interval: 1m
   subscriptions:
-    - image:
-        repoURL: ghcr.io/simonbrundin/plan
-        imageSelectionStrategy: Latest
+    - image: # 👈 VIKTIGT
+        repoURL: ghcr.io/simonbrundin/plan # ex: ghcr.io/myorg/frontend
+        imageSelectionStrategy: SemVer
         semverConstraint: "*"
-        # matcha bara tags som börjar med frontend-
         tagFilter:
           regex: "^frontend-(?P<version>\\d+\\.\\d+\\.\\d+)$"
           versionCaptureGroup: "version"

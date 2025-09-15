@@ -11,8 +11,7 @@ spec:
       sources:
         availabilityStrategy: All
         direct: true
-  subscriptions:
-    warehouse: frontend-warehouse
+
   promotionTemplate:
     spec:
       approvals:
@@ -47,9 +46,7 @@ spec:
       sources:
         stages:
           - test
-  subscriptions:
-    warehouse: frontend-warehouse
-  # 🔑 Beroende på att freight redan promottats till test
+
   upstreamStages:
     - name: test
   promotionTemplate:

@@ -4,6 +4,12 @@ metadata:
   name: test
   namespace: plan-pipeline
 spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: frontend-warehouse
+      sources:
+        direct: true
   subscriptions:
     warehouse: frontend-warehouse
   freightConstraints:

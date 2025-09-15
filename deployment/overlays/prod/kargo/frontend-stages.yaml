@@ -1,6 +1,33 @@
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
+  name: test
+  namespace: plan-pipeline
+spec:
+  subscriptions:
+    warehouse: frontend-warehouse
+  promotionTemplate:
+    spec:
+      approvals:
+        auto: true
+      steps:
+        # Bygg upp vcluster (om det inte redan finns)
+        - uses: cli.exec
+          with:
+            image: loftsh/vcluster:0.15.0
+            command: >
+              vcluster create test --namespace test-vcluster --update-current=false --connect=false
+
+        # Deploya Kustomize overlay till vcluster
+        - uses: cli.exec
+          with:
+            image: ghcr.io/argoproj/argocd:latest
+            command: >
+              kubectl --context=vcluster_test_test-vcluster apply -k deployment/overlays/template-ephemeral
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
   name: dev
   namespace: plan-pipeline
   annotations:

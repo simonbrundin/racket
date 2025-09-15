@@ -4,7 +4,7 @@ metadata:
   name: test
   namespace: plan-pipeline
 spec:
-  requestedFreight: []   # måste alltid finnas
+  requestedFreight: [] # måste alltid finnas
   subscriptions:
     warehouse: frontend-warehouse
   freightConstraints:
@@ -32,4 +32,35 @@ spec:
           with:
             repoURL: https://github.com/simonbrundin/plan.git
             branch: main
-            path: .kargo/promotions/test  # dummy fil för att trigga GH Action/Dagger
+            path: .kargo/promotions/test # dummy fil för att trigga GH Action/Dagger
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: prod
+  namespace: plan-pipeline
+spec:
+  requestedFreight: []
+  subscriptions:
+    warehouse: frontend-warehouse
+  # 🔑 Beroende på att freight redan promottats till test
+  upstreamStages:
+    - name: test
+  freightConstraints:
+    - sources:
+        - kind: GitRepository
+          name: frontend-warehouse
+        - kind: Image
+          name: frontend-warehouse
+  promotionTemplate:
+    spec:
+      approvals:
+        auto: false   # manuellt click i UI innan den kör
+      steps:
+        - uses: render.kustomize
+          as: render-prod
+          with:
+            path: deployment/overlays/prod
+            images:
+              - name: ghcr.io/simonbrundin/plan/frontend
+                newTag: ${{ freight.frontend-warehouse.image.tag }}

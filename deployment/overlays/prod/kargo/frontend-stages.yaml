@@ -6,19 +6,22 @@ metadata:
 spec:
   subscriptions:
     warehouse: frontend-warehouse
+  freightConstraints:
+    - sources:
+        - kind: GitRepository
+          name: frontend-warehouse
+        - kind: Image
+          name: frontend-warehouse
   promotionTemplate:
     spec:
       approvals:
         auto: true
       steps:
-        # Bygg upp vcluster (om det inte redan finns)
         - uses: cli.exec
           with:
             image: loftsh/vcluster:0.15.0
             command: >
               vcluster create test --namespace test-vcluster --update-current=false --connect=false
-
-        # Deploya Kustomize overlay till vcluster
         - uses: cli.exec
           with:
             image: ghcr.io/argoproj/argocd:latest

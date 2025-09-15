@@ -1,67 +1,35 @@
----
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
-  name: dev
+  name: test
   namespace: plan-pipeline
-  annotations:
-    kargo.akuity.io/color: red
 spec:
-  requestedFreight:
-    - origin:
-        kind: Warehouse
-        name: frontend-warehouse
-      sources:
-        direct: true
+  requestedFreight: []   # måste alltid finnas
+  subscriptions:
+    warehouse: frontend-warehouse
+  freightConstraints:
+    - sources:
+        - kind: GitRepository
+          name: frontend-warehouse
+        - kind: Image
+          name: frontend-warehouse
   promotionTemplate:
     spec:
+      approvals:
+        auto: true
       steps:
-        - task:
-            name: promote
+        # Rendera overlay/template-ephemeral med rätt image
+        - uses: render.kustomize
+          as: render-test
+          with:
+            path: deployment/overlays/template-ephemeral
+            images:
+              - name: ghcr.io/simonbrundin/plan/frontend
+                newTag: ${{ freight.frontend-warehouse.image.tag }}
 
----
-apiVersion: kargo.akuity.io/v1alpha1
-kind: Stage
-metadata:
-  name: staging
-  namespace: plan-pipeline
-  annotations:
-    kargo.akuity.io/color: amber
-spec:
-  requestedFreight:
-    - origin:
-        kind: Warehouse
-        name: frontend-warehouse
-      sources:
-        stages:
-          - dev
-  promotionTemplate:
-    spec:
-      steps:
-        - task:
-            name: promote
-
----
-apiVersion: kargo.akuity.io/v1alpha1
-kind: Stage
-metadata:
-  name: prod
-  namespace: plan-pipeline
-  annotations:
-    kargo.akuity.io/color: violet
-spec:
-  requestedFreight:
-    - origin:
-        kind: Warehouse
-        name: frontend-warehouse
-      sources:
-        stages:
-          - staging
-  promotionTemplate:
-    spec:
-      steps:
-        - task:
-            name: promote
-          vars:
-            - name: openpr
-              value: "true"
+        # Git apply kan "markera" promotion så att CI kör tester
+        - uses: git.apply
+          with:
+            repoURL: https://github.com/simonbrundin/plan.git
+            branch: main
+            path: .kargo/promotions/test  # dummy fil för att trigga GH Action/Dagger

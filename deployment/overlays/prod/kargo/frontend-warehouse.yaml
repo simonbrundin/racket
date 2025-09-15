@@ -11,3 +11,8 @@ spec:
         discoveryLimit: 20
         imageSelectionStrategy: Lexical
         repoURL: ghcr.io/simonbrundin/plan
+    - git:
+        repoURL: https://github.com/simonbrundin/plan.git
+        branch: main
+        includePaths:
+          - deployment

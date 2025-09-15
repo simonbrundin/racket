@@ -15,4 +15,5 @@ spec:
         repoURL: https://github.com/simonbrundin/plan.git
         branch: main
         includePaths:
-          - deployment
+          - deployment/overlays/template-ephemeral
+          - deployment/overlays/prod

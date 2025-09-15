@@ -4,7 +4,12 @@ metadata:
   name: test
   namespace: plan-pipeline
 spec:
-  requestedFreight: [] # måste alltid finnas
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: frontend-warehouse
+      sources:
+        direct: true
   subscriptions:
     warehouse: frontend-warehouse
   freightConstraints:
@@ -55,7 +60,7 @@ spec:
   promotionTemplate:
     spec:
       approvals:
-        auto: false   # manuellt click i UI innan den kör
+        auto: false # manuellt click i UI innan den kör
       steps:
         - uses: render.kustomize
           as: render-prod

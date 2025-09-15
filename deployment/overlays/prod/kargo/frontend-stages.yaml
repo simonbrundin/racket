@@ -45,7 +45,13 @@ metadata:
   name: prod
   namespace: plan-pipeline
 spec:
-  requestedFreight: []
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: frontend-warehouse
+      sources:
+        stages:
+          - test
   subscriptions:
     warehouse: frontend-warehouse
   # 🔑 Beroende på att freight redan promottats till test

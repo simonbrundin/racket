@@ -12,12 +12,6 @@ spec:
         direct: true
   subscriptions:
     warehouse: frontend-warehouse
-  freightConstraints:
-    - sources:
-        - kind: GitRepository
-          name: frontend-warehouse
-        - kind: Image
-          name: frontend-warehouse
   promotionTemplate:
     spec:
       approvals:
@@ -57,12 +51,6 @@ spec:
   # 🔑 Beroende på att freight redan promottats till test
   upstreamStages:
     - name: test
-  freightConstraints:
-    - sources:
-        - kind: GitRepository
-          name: frontend-warehouse
-        - kind: Image
-          name: frontend-warehouse
   promotionTemplate:
     spec:
       approvals:

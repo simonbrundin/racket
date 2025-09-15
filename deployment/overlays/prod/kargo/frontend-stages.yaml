@@ -9,6 +9,7 @@ spec:
         kind: Warehouse
         name: frontend-warehouse
       sources:
+        availabilityStrategy: All
         direct: true
   subscriptions:
     warehouse: frontend-warehouse

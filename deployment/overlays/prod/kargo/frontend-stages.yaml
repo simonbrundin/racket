@@ -14,24 +14,7 @@ spec:
 
   promotionTemplate:
     spec:
-      approvals:
-        auto: true
-      steps:
-        # Rendera overlay/template-ephemeral med rätt image
-        - uses: render.kustomize
-          as: render-test
-          with:
-            path: deployment/overlays/template-ephemeral
-            images:
-              - name: ghcr.io/simonbrundin/plan/frontend
-                newTag: ${{ freight.frontend-warehouse.image.tag }}
 
-        # Git apply kan "markera" promotion så att CI kör tester
-        - uses: git.apply
-          with:
-            repoURL: https://github.com/simonbrundin/plan.git
-            branch: main
-            path: .kargo/promotions/test # dummy fil för att trigga GH Action/Dagger
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
@@ -47,17 +30,5 @@ spec:
         stages:
           - test
 
-  upstreamStages:
-    - name: test
   promotionTemplate:
     spec:
-      approvals:
-        auto: false # manuellt click i UI innan den kör
-      steps:
-        - uses: render.kustomize
-          as: render-prod
-          with:
-            path: deployment/overlays/prod
-            images:
-              - name: ghcr.io/simonbrundin/plan/frontend
-                newTag: ${{ freight.frontend-warehouse.image.tag }}

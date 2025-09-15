@@ -11,6 +11,7 @@ spec:
       sources:
         availabilityStrategy: All
         direct: true
+        autoPromotionEnabled: true
 
   promotionTemplate:
     spec:

@@ -4,3 +4,4 @@ resources:
   - frontend-warehouse.yaml
   - github-secret.yaml
   - frontend-stages.yaml
+  - frontend-promote.yaml

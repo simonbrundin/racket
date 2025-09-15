@@ -7,3 +7,6 @@ helmCharts:
     version: 3.0.0
     releaseName: hasura
     namespace: hasura
+    valuesFile: values.yaml
+resources:
+  - secret.yaml

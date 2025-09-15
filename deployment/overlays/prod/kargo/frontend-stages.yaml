@@ -9,7 +9,7 @@ spec:
   requestedFreight:
     - origin:
         kind: Warehouse
-        name: guestbook
+        name: frontend-warehouse
       sources:
         direct: true
   promotionTemplate:
@@ -30,7 +30,7 @@ spec:
   requestedFreight:
     - origin:
         kind: Warehouse
-        name: guestbook
+        name: frontend-warehouse
       sources:
         stages:
           - dev
@@ -52,7 +52,7 @@ spec:
   requestedFreight:
     - origin:
         kind: Warehouse
-        name: guestbook
+        name: frontend-warehouse
       sources:
         stages:
           - staging

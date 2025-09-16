@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: acceptance-stage
-  namespace: plan
+  namespace: plan-pipeline
 spec:
   metrics:
     - name: acceptance-tests

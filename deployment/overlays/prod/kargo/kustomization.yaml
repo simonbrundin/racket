@@ -5,3 +5,4 @@ resources:
   - github-secret.yaml
   - frontend-stages.yaml
   - frontend-promote.yaml
+  - frontend-test.yaml

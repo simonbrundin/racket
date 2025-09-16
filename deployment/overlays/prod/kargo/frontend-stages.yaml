@@ -13,10 +13,14 @@ spec:
         direct: true
   verification:
     analysisTemplates:
-    - name: acceptance-stage
+      - name: acceptance-stage
 
   promotionTemplate:
     spec:
+    destination:
+      git:
+        repoURL: https://github.com/simonbrundin/plan.git
+        repoBranch: main
 
 ---
 apiVersion: kargo.akuity.io/v1alpha1

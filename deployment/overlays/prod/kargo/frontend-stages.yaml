@@ -11,6 +11,9 @@ spec:
       sources:
         availabilityStrategy: All
         direct: true
+  verification:
+    analysisTemplates:
+    - name: acceptance-stage
 
   promotionTemplate:
     spec:

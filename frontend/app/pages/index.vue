@@ -1,5 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const { user } = useUserSession();
+</script>
 
 <template>
-  <div></div>
+  <div>
+    <h1>Hej {{ user.id }}</h1>
+    <NuxtLink to="/login">Login</NuxtLink>
+  </div>
 </template>

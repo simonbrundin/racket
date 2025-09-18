@@ -7,6 +7,9 @@ export default defineOAuthAuthentikEventHandler({
       user: {
         id: user.sub,
       },
+      session: {
+        loginTime: Date.now(),
+      },
     });
     return sendRedirect(event, "/");
   },

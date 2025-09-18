@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@nuxt/image": "1.11.0",
-    "@nuxt/ui": "3.3.2",
+    "@nuxt/ui": "^3.3.4",
     "@nuxtjs/tailwindcss": "7.0.0-beta.0",
     "@tailwindcss/vite": "^4.1.13",
     "@types/pg": "^8.15.5",

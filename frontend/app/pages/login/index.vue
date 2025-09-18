@@ -4,18 +4,38 @@ const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession();
 
 <template>
   <div v-if="loggedIn">
-    <h1>Welcome {{ user.id }}!</h1>
-    <p>Logged in since {{ session.loggedInAt }}</p>
-    <button @click="clear">Logout</button>
-    <NuxtLink to="/">
-      <button>Hem</button>
-    </NuxtLink>
+    <h1 class="text-3xl font-bold text-gray-300 mb-2" v-if="user">Inloggad</h1>
+    <h1 class="text-3xl font-bold text-gray-300 mb-2" v-else>Utloggad</h1>
+
+    <p>
+      Inloggad sedan
+      {{
+        new Date(session.session.loginTime).toLocaleString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+      }}
+    </p>
+    <UButton @click="clear" icon="solar:logout-2-line-duotone">Logout</UButton>
   </div>
   <div v-else>
     <h1>Not logged in</h1>
-    <a href="/auth/authentik">Login with Authentik</a>
-    <!-- or open the OAuth route in a popup -->
-    <button @click="openInPopup('/auth/authentik')">Logga in</button>
+    <a
+      href="/auth/authentik"
+      class="text-blue-600 hover:text-blue-800 underline"
+    >
+      <UButton>Logga in</UButton>
+    </a>
   </div>
+  <NuxtLink to="/">
+    <UButton color="neutral" icon="material-symbols-light:home-outline-rounded"
+      >Hem</UButton
+    >
+  </NuxtLink>
 </template>
 <style scoped></style>

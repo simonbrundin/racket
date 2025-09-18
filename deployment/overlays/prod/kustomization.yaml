@@ -12,4 +12,4 @@ patches:
   - path: patches/deployment.yaml
 images:
   - name: ghcr.io/simonbrundin/plan
-    newTag: "1.4.474"
+    newTag: "frontend-"

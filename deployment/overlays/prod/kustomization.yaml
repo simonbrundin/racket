@@ -8,6 +8,7 @@ resources:
   - db
   - hasura
   - kargo
+  - auth-secret.yaml
 patches:
   - path: patches/deployment.yaml
 images:

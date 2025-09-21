@@ -25,10 +25,7 @@ const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession();
   </div>
   <div v-else>
     <h1>Not logged in</h1>
-    <a
-      href="/auth/authentik"
-      class="text-blue-600 hover:text-blue-800 underline"
-    >
+    <a href="/auth/authentik">
       <UButton>Logga in</UButton>
     </a>
   </div>

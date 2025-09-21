@@ -46,9 +46,7 @@ const deleteTodo = (id: string) => {
           to="/login"
           class="text-blue-600 hover:text-blue-800 underline"
         >
-          <UButton icon="solar:login-2-line-duotone" color="primary">
-            Login</UButton
-          >
+          <UButton icon="solar:login-2-line-duotone"> Login</UButton>
         </NuxtLink>
       </div>
     </div>

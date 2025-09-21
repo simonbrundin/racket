@@ -1,21 +1,35 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  extends: [
-    // "github:simonbrundin/nuxt-base-layer",
-    // ["github:simonbrundin/nuxt-base-layer", { install: true }],
-    "../../nuxt-base-layer/",
-    // eller med specifik branch/tag:
-    // 'github:username/my-template-layer#v1.0.0'
-  ],
+  // extends: [
+  //   // "github:simonbrundin/nuxt-base-layer",
+  //   // ["github:simonbrundin/nuxt-base-layer", { install: true }],
+  //   "../../nuxt-base-layer/",
+  //   // eller med specifik branch/tag:
+  //   // 'github:username/my-template-layer#v1.0.0'
+  // ],
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  css: ["~/assets/css/main.css"],
+  css: ["@/assets/css/main.css"],
+  ui: {
+    theme: {
+      colors: [
+        "primary",
+        "secondary",
+        "tertiary",
+        "info",
+        "success",
+        "warning",
+        "error",
+      ],
+    },
+  },
+
   modules: [
     "@nuxt/image",
     "@nuxtjs/color-mode",
+    "@nuxtjs/tailwindcss",
     "@nuxt/ui",
     "shadcn-nuxt",
-    "@nuxtjs/tailwindcss",
     "nuxt-auth-utils",
   ],
   colorMode: {
@@ -48,4 +62,3 @@ export default defineNuxtConfig({
     preset: "bun",
   },
 });
-

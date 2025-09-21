@@ -38,4 +38,3 @@ const handleKeydown = (event: KeyboardEvent) => {
     </button>
   </div>
 </template>
-

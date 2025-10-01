@@ -6,3 +6,11 @@ resources:
   - push-secret.yaml
   - schema.yaml
   - secret.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: atlas-schema
+    files:
+      - schema.sql

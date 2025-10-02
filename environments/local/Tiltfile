@@ -1,0 +1,32 @@
+# Tiltfile for Plan project
+
+# PostgreSQL development database with Docker Compose
+docker_compose('docker-compose.yml')
+dc_resource('postgres', labels=['database'])
+
+
+# Frontend development server
+local_resource(
+  'bun dev',
+  serve_cmd='cd ../../frontend && bun run dev',
+  serve_env={
+    'PORT': '3000',
+  },
+  links=['http://localhost:3000'],
+  labels=['frontend'],
+)
+
+# Frontend tests in watch mode
+local_resource(
+  'tests',
+  serve_cmd='cd ../../frontend && bun run test:watch',
+  labels=['frontend'],
+)
+
+# Drizzle Studio
+local_resource(
+  'drizzle-studio',
+  serve_cmd='cd ../../frontend && bun run db:studio',
+  links=['https://local.drizzle.studio'],
+  labels=['database'],
+)

@@ -22,12 +22,12 @@ spec:
         checkout:
           - branch: ${{ vars.branch }}
             path: ./src
-    # Update the image in the Kustomize configuration located at ./env/<stage>
+    # Update the image in the Kustomize configuration located at ./environments/kubernetes/overlays/<stage>
     # in the repository.
     - uses: kustomize-set-image
       as: update-image
       config:
-        path: ./src/env/${{ ctx.stage }}
+        path: ./src/environments/kubernetes/overlays/${{ ctx.stage }}
         images:
           - image: ${{ vars.image }}
             tag: ${{ imageFrom( vars.image ).Tag }}

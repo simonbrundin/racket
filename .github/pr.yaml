@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'
-      - 'deployment/**'
+      - 'environments/**'
   pull_request:
     types: [closed]
 
@@ -59,7 +59,7 @@ jobs:
         mkdir -p /tmp/pr-${{ env.PR_NUMBER }}
         
         # Kopiera template-ephemeral overlay
-        cp -r deployment/kustomize/overlays/template-ephemeral/* /tmp/pr-${{ env.PR_NUMBER }}/
+        cp -r environments/kubernetes/overlays/template-ephemeral/* /tmp/pr-${{ env.PR_NUMBER }}/
         
         # Ersätt placeholders i kustomization.yaml
         sed -i "s/NAMESPACE_PLACEHOLDER/${{ env.NAMESPACE }}/g" /tmp/pr-${{ env.PR_NUMBER }}/kustomization.yaml

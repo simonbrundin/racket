@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a full-stack application with:
 - **Frontend**: Nuxt 4 (Vue 3) app in `frontend/` directory with TypeScript, Tailwind CSS, and Nuxt UI
 - **Backend**: Minimal backend setup in `backend/` (currently just config files)
-- **Deployment**: Kubernetes configurations in `deployment/` with Hasura integration
+- **Environments**: Local dev environment in `environments/local/` and Kubernetes configurations in `environments/kubernetes/` with Hasura integration
 - **Database Schema**: Available at [drawdb.app](https://www.drawdb.app/editor?shareId=a3185456f5496cf6a48840b0ecfea7e0)
 
 ## Key Commands
@@ -83,6 +83,7 @@ API keys for various AI providers are configured via `.env` file (see `.env.exam
 ## Deployment
 
 - **Docker-based** with multi-platform builds (linux/arm64)
-- **Kubernetes** configurations in `deployment/`
-- **CI/CD**: GitHub Actions with semantic versioning
+- **Kubernetes** configurations in `environments/kubernetes/`
+- **Local development** with Tilt and Docker Compose in `environments/local/`
+- **CI/CD**: GitHub Actions with semantic versioning and Kargo for GitOps
 - **Hasura** integration for GraphQL backend

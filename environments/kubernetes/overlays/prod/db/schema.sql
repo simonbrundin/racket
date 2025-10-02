@@ -77,10 +77,3 @@ CREATE POLICY goal_relations_isolation ON "goal_relations"
       AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
     )
   );
-
--- Grant permissions till app-användaren (user)
--- App-användaren är inte table owner, så RLS kommer att tillämpas
-GRANT CONNECT ON DATABASE plan TO "user";
-GRANT USAGE ON SCHEMA public TO "user";
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "user";
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO "user";

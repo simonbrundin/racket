@@ -18,12 +18,9 @@ spec:
   promotionTemplate:
     spec:
       steps:
-        - uses: git-clone
+        - uses: promote
           config:
-            repoURL: https://github.com/simonbrundin/plan.git
-            checkout:
-              - branch: main
-                path: frontend
+            stage: test
 
 ---
 apiVersion: kargo.akuity.io/v1alpha1

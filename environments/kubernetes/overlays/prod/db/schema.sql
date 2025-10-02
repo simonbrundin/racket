@@ -42,3 +42,45 @@ ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "goal_relations"
 ADD FOREIGN KEY("child_id") REFERENCES "goals"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+-- Row Level Security Policies
+ALTER TABLE "goals" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "user_goals" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "goal_relations" ENABLE ROW LEVEL SECURITY;
+
+-- Policy för goals: Användare kan bara se mål de äger via user_goals
+CREATE POLICY goals_user_isolation ON "goals"
+  USING (
+    EXISTS (
+      SELECT 1 FROM "user_goals"
+      WHERE "user_goals"."goal_id" = "goals"."id"
+      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+    )
+  );
+
+-- Policy för user_goals: Användare kan bara se sina egna kopplingar
+CREATE POLICY user_goals_isolation ON "user_goals"
+  USING ("user_id" = current_setting('app.current_user_id', true)::INTEGER);
+
+-- Policy för goal_relations: Användare kan bara se relationer för mål de äger
+CREATE POLICY goal_relations_isolation ON "goal_relations"
+  USING (
+    EXISTS (
+      SELECT 1 FROM "user_goals"
+      WHERE "user_goals"."goal_id" = "goal_relations"."parent_id"
+      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+    )
+    OR
+    EXISTS (
+      SELECT 1 FROM "user_goals"
+      WHERE "user_goals"."goal_id" = "goal_relations"."child_id"
+      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+    )
+  );
+
+-- Grant permissions till app-användaren (user)
+-- App-användaren är inte table owner, så RLS kommer att tillämpas
+GRANT CONNECT ON DATABASE plan TO "user";
+GRANT USAGE ON SCHEMA public TO "user";
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "user";
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO "user";

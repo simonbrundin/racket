@@ -42,3 +42,7 @@ spec:
 
   promotionTemplate:
     spec:
+      steps:
+        - uses: promote
+          config:
+            stage: prod

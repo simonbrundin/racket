@@ -18,9 +18,7 @@ spec:
   promotionTemplate:
     spec:
       steps:
-        - uses: promote
-          config:
-            stage: test
+        - task: promote
 
 ---
 apiVersion: kargo.akuity.io/v1alpha1
@@ -40,6 +38,4 @@ spec:
   promotionTemplate:
     spec:
       steps:
-        - uses: promote
-          config:
-            stage: prod
+        - task: promote

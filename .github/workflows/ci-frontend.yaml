@@ -43,10 +43,20 @@ jobs:
         run: npm install --legacy-peer-deps
         working-directory: source-repo/frontend
 
-      - run: npx semantic-release
+      - name: Run semantic-release
+        id: semantic-release
+        run: npx semantic-release
         working-directory: source-repo/frontend
         env:
           GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+
+      - name: Get latest version tag
+        id: get-version
+        run: |
+          cd source-repo
+          VERSION=$(git describe --tags --match "frontend-*" --abbrev=0 | sed 's/frontend-//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Latest version: $VERSION"
 
       - name: Download Dagger CLI
         run: |
@@ -60,7 +70,7 @@ jobs:
             --image-name ${{ github.event.repository.name }} \
             --registry-address ghcr.io/simonbrundin \
             --source-dir $GITHUB_WORKSPACE/source-repo/frontend\
-            --tag frontend-${{ env.RELEASE_VERSION }} \
+            --tag frontend-${{ steps.get-version.outputs.version }} \
             --username simonbrundin \
             --secret ${{ secrets.REGISTRY_PASSWORD }} \
             --multiArch

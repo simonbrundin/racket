@@ -18,7 +18,26 @@ spec:
   promotionTemplate:
     spec:
       steps:
-        - task: promote
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/simonbrundin/plan.git
+            checkout:
+              - branch: main
+                path: ./src
+        - uses: kustomize-set-image
+          as: update-image
+          config:
+            path: ./src/environments/kubernetes/overlays/test
+            images:
+              - image: ghcr.io/simonbrundin/plan
+        - uses: git-commit
+          as: commit
+          config:
+            path: ./src
+            message: "Update test image to ${{ imageFrom('ghcr.io/simonbrundin/plan').Tag }}"
+        - uses: git-push
+          config:
+            path: ./src
 
 ---
 apiVersion: kargo.akuity.io/v1alpha1
@@ -38,4 +57,23 @@ spec:
   promotionTemplate:
     spec:
       steps:
-        - task: promote
+        - uses: git-clone
+          config:
+            repoURL: https://github.com/simonbrundin/plan.git
+            checkout:
+              - branch: main
+                path: ./src
+        - uses: kustomize-set-image
+          as: update-image
+          config:
+            path: ./src/environments/kubernetes/overlays/prod
+            images:
+              - image: ghcr.io/simonbrundin/plan
+        - uses: git-commit
+          as: commit
+          config:
+            path: ./src
+            message: "Update prod image to ${{ imageFrom('ghcr.io/simonbrundin/plan').Tag }}"
+        - uses: git-push
+          config:
+            path: ./src

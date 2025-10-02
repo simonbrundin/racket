@@ -2,15 +2,7 @@
   "name": "Plan - Nuxt 4 Development",
   "image": "oven/bun:latest",
 
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
-      "version": "latest",
-      "helm": "latest",
-      "minikube": "none"
-    }
-  },
+  "features": {},
 
   "customizations": {
     "vscode": {
@@ -37,11 +29,12 @@
 
   "remoteUser": "bun",
 
-  "mounts": [
-    "source=${localEnv:HOME}/.kube,target=/home/bun/.kube,type=bind,consistency=cached"
-  ],
+  "mounts": ["source=${localEnv:HOME}/.kube,target=/home/bun/.kube,type=bind"],
 
   "containerEnv": {
-    "NODE_ENV": "development"
-  }
+    "NODE_ENV": "development",
+    "SHELL": "/bin/bash"
+  },
+
+  "overrideCommand": true
 }

@@ -44,7 +44,7 @@ ADD FOREIGN KEY("child_id") REFERENCES "goals"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 -- Grant permissions for Hasura user
-GRANT CREATE ON DATABASE plan TO "user";
+-- GRANT CREATE ON DATABASE plan TO "user"; -- Commented out: causes issues with Atlas dev DB validation
 GRANT USAGE ON SCHEMA public TO "user";
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "user";
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "user";

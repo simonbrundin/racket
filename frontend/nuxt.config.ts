@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   // extends: [
   //   // "github:simonbrundin/nuxt-base-layer",
@@ -32,6 +34,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-auth-utils",
     "nuxt-graphql-client",
+    "@pinia/nuxt",
   ],
   colorMode: {
     classSuffix: "",
@@ -39,7 +42,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       authBaseUrl: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-      GQL_HOST: "https://plan-hasura.simonbrundin.com/v1/graphql",
+      GQL_HOST: process.env.NODE_ENV === 'production'
+        ? "https://plan-hasura.simonbrundin.com/v1/graphql"
+        : "http://localhost:8080/v1/graphql",
     },
     // oauth: {
     //   // provider in lowercase (github, google, etc.)
@@ -66,11 +71,16 @@ export default defineNuxtConfig({
   "graphql-client": {
     clients: {
       default: {
-        host: "https://plan-hasura.simonbrundin.com/v1/graphql",
+        host: process.env.GQL_HOST || (process.env.NODE_ENV === 'production'
+          ? "https://plan-hasura.simonbrundin.com/v1/graphql"
+          : "http://localhost:8080/v1/graphql"),
         token: {
           type: 'Bearer',
           name: 'Authorization',
         },
+        headers: process.env.HASURA_GRAPHQL_ADMIN_SECRET ? {
+          'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET
+        } : {},
       },
     },
   },

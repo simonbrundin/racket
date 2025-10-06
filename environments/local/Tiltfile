@@ -1,8 +1,9 @@
 # Tiltfile for Plan project
 
-# PostgreSQL development database with Docker Compose
+# PostgreSQL development database and Hasura with Docker Compose
 docker_compose('docker-compose.yml')
 dc_resource('postgres', labels=['database'])
+dc_resource('hasura', labels=['backend'], links=['http://localhost:8080/console'])
 
 
 # Frontend development server
@@ -12,7 +13,7 @@ local_resource(
   serve_env={
     'PORT': '3000',
   },
-  links=['http://localhost:3000', 'http://localhost:3000/api/graphql'],
+  links=['http://localhost:3000'],
   labels=['frontend'],
 )
 

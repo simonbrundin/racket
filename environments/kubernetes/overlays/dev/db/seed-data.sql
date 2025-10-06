@@ -16,7 +16,8 @@ INSERT INTO goals (title, finished) VALUES
   ('Frontend components', NULL),
   ('Database schema', CURRENT_TIMESTAMP),
   ('CI/CD pipeline', NULL),
-  ('Documentation', NULL);
+  ('Documentation', NULL),
+  ('Integration tests', NULL);
 
 INSERT INTO user_goals (user_id, goal_id) VALUES
   (1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
@@ -26,4 +27,4 @@ INSERT INTO user_goals (user_id, goal_id) VALUES
 INSERT INTO goal_relations (parent_id, child_id) VALUES
   (1, 2), (1, 5), (1, 6),
   (5, 7), (5, 8),
-  (4, 9);
+  (4, 9), (4, 11);

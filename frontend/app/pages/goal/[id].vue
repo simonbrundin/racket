@@ -1,23 +1,734 @@
-<template>
-  <img :src="goalImage" class="h-48 w-full object-cover" alt="" />
-  <div class="-mt-5 flex items-center justify-center gap-x-6">
-    <a
-      href="#"
-      class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-      >{{ goal.title }}</a
-    >
-  </div>
-  <div v-for="child in children">{{ child.title }}</div>
-</template>
-
 <script setup lang="ts">
-let goal = {
-  title: "Hogwarts",
-};
-let children = [{ title: "Quiddichplan" }];
-let parents = [{ title: "Resor" }];
-let goalImage =
-  "https://t3.ftcdn.net/jpg/03/26/22/48/360_F_326224870_vB8XRJbWr0qDG5bhAomLjVlKzcUXPdKA.jpg";
+const route = useRoute();
+const goalId = parseInt(route.params.id as string);
+
+interface Goal {
+  id: number;
+  title: string;
+  created: string;
+  finished: string | null;
+}
+
+interface ChildRelation {
+  child_id: number;
+}
+
+interface ParentRelation {
+  goalByParentId: Goal;
+}
+
+interface GoalWithRelations extends Goal {
+  childRelations: ChildRelation[];
+  parentRelations: ParentRelation[];
+}
+
+interface GetGoalResponse {
+  goal: GoalWithRelations;
+  allGoals: Goal[];
+}
+
+interface SearchGoalsResponse {
+  goals: Goal[];
+}
+
+// Hämta målet med dess relationer
+const { data: goalData, refresh } = await useAsyncGql<GetGoalResponse>(
+  "GetGoal",
+  {
+    id: goalId,
+  },
+);
+
+const goal = computed(() => goalData.value?.goal);
+
+// Extrahera alla föräldrar
+const parents = computed(
+  () => goal.value?.parentRelations?.map((r) => r.goalByParentId) || [],
+);
+
+// Matcha barn-ID:n med faktiska goal-objekt
+const children = computed(() => {
+  if (!goal.value?.childRelations || !goalData.value?.allGoals) return [];
+
+  const childIds = goal.value.childRelations.map((r) => r.child_id);
+  return goalData.value.allGoals.filter((g) => childIds.includes(g.id));
+});
+
+// Beräkna progress baserat på färdiga undermål
+const progress = computed(() => {
+  if (children.value.length === 0) return 0;
+  const completed = children.value.filter((c) => c.finished).length;
+  return Math.round((completed / children.value.length) * 100);
+});
+
+// Använd goals store
+const goalsStore = useGoalsStore();
+
+// Ladda goals om de inte är laddade
+onMounted(async () => {
+  if (!goalsStore.isLoaded) {
+    await goalsStore.loadGoals();
+  }
+});
+
+// Visa/dölj avklarade mål
+const showCompleted = ref(true);
+
+// Filtrerade undermål baserat på showCompleted
+const filteredChildren = computed(() => {
+  if (showCompleted.value) {
+    return children.value;
+  }
+  return children.value.filter((c) => !c.finished);
+});
+
+// Sökfunktion för att lägga till föräldrar
+const showParentSearch = ref(false);
+const parentSearchQuery = ref("");
+const parentSearchInput = ref<HTMLInputElement | null>(null);
+
+// Fokusera input när plus-knappen klickas
+async function toggleParentSearch() {
+  showParentSearch.value = !showParentSearch.value;
+  if (showParentSearch.value) {
+    await nextTick();
+    parentSearchInput.value?.focus();
+  }
+}
+
+// Sök i lokal state istället för GraphQL
+const searchResults = computed(() => {
+  if (!parentSearchQuery.value.trim()) return [];
+
+  const results = goalsStore.searchGoals(parentSearchQuery.value);
+
+  // Filtrera bort nuvarande målet och befintliga föräldrar
+  const currentParentIds = parents.value.map((p) => p.id);
+  return results.filter(
+    (g) => g.id !== goalId && !currentParentIds.includes(g.id),
+  );
+});
+
+// Lägg till befintligt mål som förälder
+async function addExistingParent(parentId: number) {
+  try {
+    await GqlAddParentRelation({
+      childId: goalId,
+      parentId: parentId,
+    });
+
+    // Uppdatera lokal state
+    goalsStore.addRelation(goalId, parentId);
+
+    // Uppdatera data från server
+    await refresh();
+
+    // Stäng och rensa sökning
+    showParentSearch.value = false;
+    parentSearchQuery.value = "";
+  } catch (error) {
+    console.error("Failed to add parent:", error);
+  }
+}
+
+// Skapa nytt mål som förälder
+async function createNewParent() {
+  if (!parentSearchQuery.value.trim()) return;
+
+  try {
+    // Skapa nytt mål
+    const result = await GqlCreateGoal({
+      title: parentSearchQuery.value.trim(),
+    });
+
+    // Hantera både { data } och direkt resultat
+    const data = result?.data || result;
+
+    if (data?.insert_goals_one?.id) {
+      const newGoal = data.insert_goals_one;
+
+      // Skapa relationen i databasen
+      await GqlAddParentRelation({
+        childId: goalId,
+        parentId: newGoal.id,
+      });
+
+      // Uppdatera lokal state
+      goalsStore.addGoal(newGoal);
+      goalsStore.addRelation(goalId, newGoal.id);
+
+      // Uppdatera data från server
+      await refresh();
+
+      // Stäng och rensa sökning
+      showParentSearch.value = false;
+      parentSearchQuery.value = "";
+    }
+  } catch (error) {
+    console.error("Failed to create new parent:", error);
+  }
+}
+
+// Hantera Enter-tangent
+function handleSearchKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    if (searchResults.value.length === 0) {
+      // Skapa nytt mål om inga resultat
+      createNewParent();
+    } else {
+      // Välj första resultatet
+      addExistingParent(searchResults.value[0].id);
+    }
+  } else if (event.key === "Escape") {
+    showParentSearch.value = false;
+    parentSearchQuery.value = "";
+  }
+}
+
+// Sökfunktion för att lägga till barn (undermål)
+const showChildSearch = ref(false);
+const childSearchQuery = ref("");
+const childSearchInput = ref<HTMLInputElement | null>(null);
+
+// Fokusera input när plus-knappen klickas
+async function toggleChildSearch() {
+  showChildSearch.value = !showChildSearch.value;
+  if (showChildSearch.value) {
+    await nextTick();
+    childSearchInput.value?.focus();
+  }
+}
+
+// Sök för undermål
+const childSearchResults = computed(() => {
+  if (!childSearchQuery.value.trim()) return [];
+
+  const results = goalsStore.searchGoals(childSearchQuery.value);
+
+  // Filtrera bort nuvarande målet och befintliga barn
+  const currentChildIds = children.value.map((c) => c.id);
+  return results.filter(
+    (g) => g.id !== goalId && !currentChildIds.includes(g.id),
+  );
+});
+
+// Lägg till befintligt mål som barn
+async function addExistingChild(childId: number) {
+  try {
+    await GqlAddParentRelation({
+      childId: childId,
+      parentId: goalId,
+    });
+
+    // Uppdatera lokal state
+    goalsStore.addRelation(childId, goalId);
+
+    // Uppdatera data från server
+    await refresh();
+
+    // Stäng och rensa sökning
+    showChildSearch.value = false;
+    childSearchQuery.value = "";
+  } catch (error) {
+    console.error("Failed to add child:", error);
+  }
+}
+
+// Skapa nytt mål som barn
+async function createNewChild() {
+  if (!childSearchQuery.value.trim()) return;
+
+  try {
+    console.log(
+      "Creating new child with title:",
+      childSearchQuery.value.trim(),
+    );
+
+    // Skapa nytt mål
+    const result = await GqlCreateGoal({
+      title: childSearchQuery.value.trim(),
+    });
+
+    console.log("Created goal result:", result);
+
+    // Hantera både { data } och direkt resultat
+    const data = result?.data || result;
+
+    console.log("Extracted data:", data);
+
+    if (data?.insert_goals_one?.id) {
+      const newGoal = data.insert_goals_one;
+
+      console.log(
+        "Adding relation - childId:",
+        newGoal.id,
+        "parentId:",
+        goalId,
+      );
+
+      // Skapa relationen i databasen
+      const relationResult = await GqlAddParentRelation({
+        childId: newGoal.id,
+        parentId: goalId,
+      });
+
+      console.log("Relation created:", relationResult);
+
+      // Uppdatera lokal state
+      goalsStore.addGoal(newGoal);
+      goalsStore.addRelation(newGoal.id, goalId);
+
+      // Uppdatera data från server
+      await refresh();
+
+      // Stäng och rensa sökning
+      showChildSearch.value = false;
+      childSearchQuery.value = "";
+    }
+  } catch (error) {
+    console.error("Failed to create new child:", error);
+  }
+}
+
+// Hantera Enter-tangent för undermål
+function handleChildSearchKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    if (childSearchResults.value.length === 0) {
+      // Skapa nytt mål om inga resultat
+      createNewChild();
+    } else {
+      // Välj första resultatet
+      addExistingChild(childSearchResults.value[0].id);
+    }
+  } else if (event.key === "Escape") {
+    showChildSearch.value = false;
+    childSearchQuery.value = "";
+  }
+}
+
+// Long-press för att ta bort föräldrarelation
+const pressTimer = ref<NodeJS.Timeout | null>(null);
+const parentToRemove = ref<number | null>(null);
+const showRemoveConfirmation = ref(false);
+
+function handleParentMouseDown(parentId: number) {
+  pressTimer.value = setTimeout(() => {
+    parentToRemove.value = parentId;
+    showRemoveConfirmation.value = true;
+  }, 500); // 500ms = håll inne i 0.5 sek
+}
+
+function handleParentMouseUp() {
+  if (pressTimer.value) {
+    clearTimeout(pressTimer.value);
+    pressTimer.value = null;
+  }
+}
+
+function cancelRemoveParent() {
+  showRemoveConfirmation.value = false;
+  parentToRemove.value = null;
+}
+
+async function confirmRemoveParent() {
+  if (!parentToRemove.value) return;
+
+  try {
+    await GqlRemoveParentRelation({
+      childId: goalId,
+      parentId: parentToRemove.value,
+    });
+
+    // Uppdatera lokal state
+    goalsStore.removeRelation(goalId, parentToRemove.value);
+
+    // Uppdatera data från server
+    await refresh();
+
+    // Stäng modal
+    showRemoveConfirmation.value = false;
+    parentToRemove.value = null;
+  } catch (error) {
+    console.error("Failed to remove parent relation:", error);
+  }
+}
+
+// Swipe funktionalitet för att markera undermål som färdiga
+interface SwipeState {
+  startX: number;
+  currentX: number;
+  isSwiping: boolean;
+  childId: number | null;
+}
+
+const swipeState = ref<SwipeState>({
+  startX: 0,
+  currentX: 0,
+  isSwiping: false,
+  childId: null,
+});
+
+function handleTouchStart(event: TouchEvent, childId: number) {
+  const touch = event.touches[0];
+  swipeState.value = {
+    startX: touch.clientX,
+    currentX: touch.clientX,
+    isSwiping: true,
+    childId: childId,
+  };
+}
+
+function handleTouchMove(event: TouchEvent) {
+  if (!swipeState.value.isSwiping) return;
+
+  const touch = event.touches[0];
+  swipeState.value.currentX = touch.clientX;
+}
+
+async function handleTouchEnd(child: Goal) {
+  if (!swipeState.value.isSwiping) return;
+
+  const deltaX = swipeState.value.currentX - swipeState.value.startX;
+  const threshold = 50; // Minimum swipe distance i pixels
+
+  if (Math.abs(deltaX) > threshold && deltaX > 0) {
+    // Swipade åt höger - toggla finished status
+    try {
+      const newFinishedValue = child.finished ? null : new Date().toISOString();
+
+      await GqlUpdateGoalFinished({
+        id: child.id,
+        finished: newFinishedValue,
+      });
+
+      // Uppdatera lokal state i store
+      goalsStore.updateGoal(child.id, { finished: newFinishedValue });
+
+      // Uppdatera lokal state i component
+      if (goalData.value?.allGoals) {
+        const goalIndex = goalData.value.allGoals.findIndex(
+          (g) => g.id === child.id,
+        );
+        if (goalIndex !== -1) {
+          goalData.value.allGoals[goalIndex].finished = newFinishedValue;
+        }
+      }
+
+      // Uppdatera data från server
+      await refresh();
+    } catch (error) {
+      console.error("Failed to update goal finished status:", error);
+    }
+  }
+
+  // Reset swipe state
+  swipeState.value = {
+    startX: 0,
+    currentX: 0,
+    isSwiping: false,
+    childId: null,
+  };
+}
+
+// Beräkna swipe offset för visuell feedback
+function getSwipeOffset(childId: number): number {
+  if (
+    swipeState.value.isSwiping &&
+    swipeState.value.childId === childId
+  ) {
+    const delta = swipeState.value.currentX - swipeState.value.startX;
+    return Math.max(0, Math.min(delta, 100)); // Begränsa till 0-100px
+  }
+  return 0;
+}
 </script>
 
-<style scoped></style>
+<template>
+  <div class="max-w-4xl mx-auto p-6">
+    <div v-if="!goal" class="text-center py-12">
+      <p class="text-gray-500">Laddar mål...</p>
+    </div>
+
+    <div v-else class="space-y-8">
+      <!-- Breadcrumb / Föräldrar -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-sm flex-wrap">
+          <NuxtLink
+            v-if="parents.length === 0"
+            to="/root-goals"
+            class="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+          >
+            Grundmål
+          </NuxtLink>
+          <NuxtLink
+            v-for="parent in parents"
+            :key="parent.id"
+            :to="`/goal/${parent.id}`"
+            class="text-gray-500 hover:text-gray-300 transition-colors select-none"
+            @mousedown="handleParentMouseDown(parent.id)"
+            @mouseup="handleParentMouseUp"
+            @mouseleave="handleParentMouseUp"
+            @touchstart="handleParentMouseDown(parent.id)"
+            @touchend="handleParentMouseUp"
+            @touchcancel="handleParentMouseUp"
+          >
+            {{ parent.title }}
+          </NuxtLink>
+        </div>
+
+        <!-- + knapp för att lägga till förälder -->
+        <button
+          @click="toggleParentSearch"
+          class="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-800"
+          title="Lägg till förälder"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Sökfält för föräldrar -->
+      <div
+        v-if="showParentSearch"
+        class="border border-gray-700 rounded-lg p-4 bg-gray-800"
+      >
+        <div class="mb-2">
+          <input
+            ref="parentSearchInput"
+            v-model="parentSearchQuery"
+            @keydown="handleSearchKeydown"
+            type="text"
+            placeholder="Sök efter mål eller skapa nytt (tryck Enter)"
+            class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            autofocus
+          />
+        </div>
+
+        <!-- Sökresultat -->
+        <div v-if="searchResults.length > 0" class="space-y-1 mt-2">
+          <button
+            v-for="result in searchResults"
+            :key="result.id"
+            @click="addExistingParent(result.id)"
+            class="w-full text-left px-4 py-2 hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <div class="font-medium text-gray-200">{{ result.title }}</div>
+            <div class="text-xs text-gray-500">
+              {{ new Date(result.created).toLocaleDateString("sv-SE") }}
+            </div>
+          </button>
+        </div>
+
+        <!-- Meddelande när inga resultat -->
+        <div
+          v-else-if="parentSearchQuery.trim()"
+          class="text-sm text-gray-500 px-4 py-2"
+        >
+          Tryck Enter för att skapa "{{ parentSearchQuery }}" som nytt mål
+        </div>
+      </div>
+
+      <!-- Huvudmål -->
+      <h1 class="text-4xl font-bold text-gray-100">{{ goal.title }}</h1>
+
+      <!-- Undermål -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-semibold text-gray-300"></h2>
+          <div class="flex items-center gap-2">
+            <button
+              @click="showCompleted = !showCompleted"
+              class="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-800"
+              :title="showCompleted ? 'Dölj avklarade mål' : 'Visa avklarade mål'"
+            >
+              <svg
+                v-if="showCompleted"
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                />
+              </svg>
+            </button>
+            <button
+              @click="toggleChildSearch"
+              class="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-800"
+              title="Lägg till undermål"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sökfält för undermål -->
+        <div
+          v-if="showChildSearch"
+          class="border border-gray-700 rounded-lg p-4 bg-gray-800 mb-4"
+        >
+          <div class="mb-2">
+            <input
+              ref="childSearchInput"
+              v-model="childSearchQuery"
+              @keydown="handleChildSearchKeydown"
+              type="text"
+              placeholder="Sök efter mål eller skapa nytt (tryck Enter)"
+              class="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autofocus
+            />
+          </div>
+
+          <!-- Sökresultat -->
+          <div v-if="childSearchResults.length > 0" class="space-y-1 mt-2">
+            <button
+              v-for="result in childSearchResults"
+              :key="result.id"
+              @click="addExistingChild(result.id)"
+              class="w-full text-left px-4 py-2 hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <div class="font-medium text-gray-200">{{ result.title }}</div>
+              <div class="text-xs text-gray-500">
+                {{ new Date(result.created).toLocaleDateString("sv-SE") }}
+              </div>
+            </button>
+          </div>
+
+          <!-- Meddelande när inga resultat -->
+          <div
+            v-else-if="childSearchQuery.trim()"
+            class="text-sm text-gray-500 px-4 py-2"
+          >
+            Tryck Enter för att skapa "{{ childSearchQuery }}" som nytt undermål
+          </div>
+        </div>
+
+        <ul v-if="filteredChildren.length > 0" class="space-y-3">
+          <li
+            v-for="child in filteredChildren"
+            :key="child.id"
+            class="relative overflow-hidden rounded-lg"
+          >
+            <!-- Swipe bakgrund -->
+            <div
+              class="absolute inset-0 flex items-center justify-start px-6"
+              :class="child.finished ? 'bg-red-900/50' : 'bg-green-900/50'"
+            >
+              <span class="text-2xl">{{ child.finished ? "↩️" : "✓" }}</span>
+            </div>
+
+            <!-- Huvudinnehåll -->
+            <div
+              class="relative border border-gray-700 rounded-lg hover:border-gray-600 transition-all bg-gray-900"
+              :style="{
+                transform: `translateX(${getSwipeOffset(child.id)}px)`,
+                transition: swipeState.isSwiping ? 'none' : 'transform 0.3s ease',
+              }"
+              @touchstart="handleTouchStart($event, child.id)"
+              @touchmove="handleTouchMove($event)"
+              @touchend="handleTouchEnd(child)"
+            >
+              <NuxtLink
+                :to="`/goal/${child.id}`"
+                class="p-4 flex items-start justify-between block"
+              >
+                <div class="flex-1">
+                  <h3
+                    class="text-lg font-medium"
+                    :class="child.finished ? 'text-gray-500' : 'text-gray-200'"
+                  >
+                    {{ child.title }}
+                  </h3>
+                </div>
+              </NuxtLink>
+            </div>
+          </li>
+        </ul>
+
+        <div
+          v-else
+          class="text-gray-500 p-6 border border-gray-700 rounded-lg text-center"
+        >
+          Inga undermål ännu. Skapa ett för att dela upp detta mål i mindre
+          delar.
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal för att bekräfta borttagning av föräldrarelation -->
+    <UModal
+      v-model:open="showRemoveConfirmation"
+      title="Ta bort föräldrarelation?"
+    >
+      <p v-if="parentToRemove" class="text-gray-400">
+        Vill du ta bort relationen till
+        <strong>{{
+          parents.find((p) => p.id === parentToRemove)?.title
+        }}</strong
+        >? Själva målet kommer inte tas bort.
+      </p>
+
+      <template #footer="{ close }">
+        <div class="flex justify-end gap-2">
+          <UButton color="gray" variant="ghost" @click="cancelRemoveParent">
+            Avbryt
+          </UButton>
+          <UButton color="red" @click="confirmRemoveParent">
+            Ta bort relation
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </div>
+</template>

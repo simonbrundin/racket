@@ -1,0 +1,15 @@
+query GetRootGoals {
+  goals(where: {
+    _not: {
+      goal_relations: {}
+    }
+  }) {
+    id
+    title
+    created
+    finished
+    childRelations: goalRelationsByParentId {
+      child_id
+    }
+  }
+}

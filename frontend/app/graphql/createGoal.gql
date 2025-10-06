@@ -1,0 +1,8 @@
+mutation CreateGoal($title: String!) {
+  insert_goals_one(object: { title: $title }) {
+    id
+    title
+    created
+    finished
+  }
+}

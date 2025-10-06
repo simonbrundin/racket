@@ -1,0 +1,29 @@
+query GetGoal($id: Int!) {
+  goal: goals_by_pk(id: $id) {
+    id
+    title
+    created
+    finished
+
+    # Barn - relationer där detta mål är parent
+    childRelations: goalRelationsByParentId {
+      child_id
+    }
+
+    # Förälder - relationer där detta mål är child
+    parentRelations: goal_relations {
+      goalByParentId {
+        id
+        title
+      }
+    }
+  }
+
+  # Hämta alla mål för att kunna matcha children
+  allGoals: goals {
+    id
+    title
+    finished
+    created
+  }
+}

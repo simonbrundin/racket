@@ -1,0 +1,8 @@
+query GetAllGoals {
+  goals(order_by: { created: desc }) {
+    id
+    title
+    created
+    finished
+  }
+}

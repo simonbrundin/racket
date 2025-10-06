@@ -1,0 +1,6 @@
+query GetAllRelations {
+  goal_relations {
+    child_id
+    parent_id
+  }
+}

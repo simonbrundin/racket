@@ -11,6 +11,5 @@ spec:
     configMapKeyRef:
       key: schema.sql
       name: atlas-schema
-  exclude:
-    - "hdb_catalog.*"
-    - "hdb_views.*"
+  schemas:
+    - "public"

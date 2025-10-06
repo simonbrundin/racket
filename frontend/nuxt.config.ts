@@ -69,6 +69,10 @@ export default defineNuxtConfig({
     preset: "bun",
   },
   "graphql-client": {
+    codegen: {
+      // Disable code generation during build since Hasura endpoint is not accessible during Docker build
+      disableOnBuild: true,
+    },
     clients: {
       default: {
         host: process.env.GQL_HOST || (process.env.NODE_ENV === 'production'

@@ -432,10 +432,7 @@ async function handleTouchEnd(child: Goal) {
 
 // Beräkna swipe offset för visuell feedback
 function getSwipeOffset(childId: number): number {
-  if (
-    swipeState.value.isSwiping &&
-    swipeState.value.childId === childId
-  ) {
+  if (swipeState.value.isSwiping && swipeState.value.childId === childId) {
     const delta = swipeState.value.currentX - swipeState.value.startX;
     return Math.max(0, Math.min(delta, 100)); // Begränsa till 0-100px
   }
@@ -551,7 +548,9 @@ function getSwipeOffset(childId: number): number {
             <button
               @click="showCompleted = !showCompleted"
               class="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded hover:bg-gray-800"
-              :title="showCompleted ? 'Dölj avklarade mål' : 'Visa avklarade mål'"
+              :title="
+                showCompleted ? 'Dölj avklarade mål' : 'Visa avklarade mål'
+              "
             >
               <svg
                 v-if="showCompleted"
@@ -673,7 +672,9 @@ function getSwipeOffset(childId: number): number {
               class="relative border border-gray-700 rounded-lg hover:border-gray-600 transition-all bg-gray-900"
               :style="{
                 transform: `translateX(${getSwipeOffset(child.id)}px)`,
-                transition: swipeState.isSwiping ? 'none' : 'transform 0.3s ease',
+                transition: swipeState.isSwiping
+                  ? 'none'
+                  : 'transform 0.3s ease',
               }"
               @touchstart="handleTouchStart($event, child.id)"
               @touchmove="handleTouchMove($event)"

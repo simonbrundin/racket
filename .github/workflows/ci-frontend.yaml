@@ -48,7 +48,7 @@ jobs:
       #   working-directory: source-repo/frontend
 
       - name: Install devDependencies for semantic-release
-        run: npm install --only=dev --ignore-scripts --legacy-peer-deps
+        run: npm install --omit=prod --ignore-scripts --legacy-peer-deps
         working-directory: source-repo/frontend
 
       - name: Run semantic-release

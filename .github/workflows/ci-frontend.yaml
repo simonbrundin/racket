@@ -39,16 +39,16 @@ jobs:
         with:
           node-version: 24
 
-      - name: Clean npm cache
-        run: npm cache clean --force
-        working-directory: source-repo/frontend
+      # - name: Clean npm cache
+      #   run: npm cache clean --force
+      #   working-directory: source-repo/frontend
 
-      - name: Remove lockfiles
-        run: rm -f package-lock.json bun.lockb
-        working-directory: source-repo/frontend
+      # - name: Remove lockfiles
+      #   run: rm -f package-lock.json bun.lockb
+      #   working-directory: source-repo/frontend
 
-      - name: Install devDependencies
-        run: npm install --legacy-peer-deps --loglevel verbose
+      - name: Install devDependencies for semantic-release
+        run: npm install --only=dev --ignore-scripts --legacy-peer-deps
         working-directory: source-repo/frontend
 
       - name: Run semantic-release

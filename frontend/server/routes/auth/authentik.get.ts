@@ -6,9 +6,11 @@ export default defineOAuthAuthentikEventHandler({
     await setUserSession(event, {
       user: {
         id: user.sub,
+        email: user.email,
       },
       session: {
         loginTime: Date.now(),
+        accessToken: tokens.access_token,
       },
     });
     return sendRedirect(event, "/");

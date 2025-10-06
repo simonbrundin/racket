@@ -1,36 +1,9 @@
 <script setup lang="ts">
-interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-}
-
 const { user } = useUserSession();
 
-const todos = ref<Todo[]>([]);
+const { data: goalsData } = await useAsyncGql('GetUserGoals');
 
-const addTodo = (text: string) => {
-  const newTodo: Todo = {
-    id: Date.now().toString(),
-    text,
-    completed: false,
-  };
-  todos.value.push(newTodo);
-};
-
-const toggleTodo = (id: string) => {
-  const todo = todos.value.find((t) => t.id === id);
-  if (todo) {
-    todo.completed = !todo.completed;
-  }
-};
-
-const deleteTodo = (id: string) => {
-  const index = todos.value.findIndex((t) => t.id === id);
-  if (index > -1) {
-    todos.value.splice(index, 1);
-  }
-};
+const goals = computed(() => goalsData.value?.user_goals?.map(ug => ug.goal) || []);
 </script>
 
 <template>
@@ -51,12 +24,35 @@ const deleteTodo = (id: string) => {
       </div>
     </div>
 
-    <div class="bg-gray-50 rounded-xl p-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Mina Todos</h2>
+    <div v-if="user" class="mt-8">
+      <h2 class="text-2xl font-semibold text-gray-300 mb-4">Dina mål</h2>
 
-      <TodoInput @add="addTodo" />
+      <div v-if="goals.length === 0" class="text-gray-500 p-4 border border-gray-700 rounded-lg">
+        Du har inga mål ännu. Skapa ditt första mål för att komma igång!
+      </div>
 
-      <TodoList :todos="todos" @toggle="toggleTodo" @delete="deleteTodo" />
+      <ul v-else class="space-y-3">
+        <li
+          v-for="goal in goals"
+          :key="goal.id"
+          class="p-4 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
+        >
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h3 class="text-lg font-medium text-gray-200">{{ goal.title }}</h3>
+              <p class="text-sm text-gray-500 mt-1">
+                Skapad: {{ new Date(goal.created).toLocaleDateString('sv-SE') }}
+              </p>
+            </div>
+            <span
+              v-if="goal.finished"
+              class="px-2 py-1 text-xs font-semibold rounded bg-green-900 text-green-200"
+            >
+              Klar
+            </span>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>

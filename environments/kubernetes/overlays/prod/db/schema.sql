@@ -54,13 +54,13 @@ CREATE POLICY goals_user_isolation ON "goals"
     EXISTS (
       SELECT 1 FROM "user_goals"
       WHERE "user_goals"."goal_id" = "goals"."id"
-      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+      AND "user_goals"."user_id" = (current_setting('hasura.user', 't')::json->>'x-hasura-user-id')::INTEGER
     )
   );
 
 -- Policy för user_goals: Användare kan bara se sina egna kopplingar
 CREATE POLICY user_goals_isolation ON "user_goals"
-  USING ("user_id" = current_setting('app.current_user_id', true)::INTEGER);
+  USING ("user_id" = (current_setting('hasura.user', 't')::json->>'x-hasura-user-id')::INTEGER);
 
 -- Policy för goal_relations: Användare kan bara se relationer för mål de äger
 CREATE POLICY goal_relations_isolation ON "goal_relations"
@@ -68,12 +68,12 @@ CREATE POLICY goal_relations_isolation ON "goal_relations"
     EXISTS (
       SELECT 1 FROM "user_goals"
       WHERE "user_goals"."goal_id" = "goal_relations"."parent_id"
-      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+      AND "user_goals"."user_id" = (current_setting('hasura.user', 't')::json->>'x-hasura-user-id')::INTEGER
     )
     OR
     EXISTS (
       SELECT 1 FROM "user_goals"
       WHERE "user_goals"."goal_id" = "goal_relations"."child_id"
-      AND "user_goals"."user_id" = current_setting('app.current_user_id', true)::INTEGER
+      AND "user_goals"."user_id" = (current_setting('hasura.user', 't')::json->>'x-hasura-user-id')::INTEGER
     )
   );

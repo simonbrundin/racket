@@ -1,0 +1,10 @@
+query GetUserGoals {
+  user_goals {
+    goal {
+      id
+      title
+      created
+      finished
+    }
+  }
+}

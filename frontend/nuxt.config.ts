@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "shadcn-nuxt",
     "nuxt-auth-utils",
+    "nuxt-graphql-client",
   ],
   colorMode: {
     classSuffix: "",
@@ -38,6 +39,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       authBaseUrl: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+      GQL_HOST: "https://plan-hasura.simonbrundin.com/v1/graphql",
     },
     // oauth: {
     //   // provider in lowercase (github, google, etc.)
@@ -60,5 +62,16 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: "bun",
+  },
+  "graphql-client": {
+    clients: {
+      default: {
+        host: "https://plan-hasura.simonbrundin.com/v1/graphql",
+        token: {
+          type: 'Bearer',
+          name: 'Authorization',
+        },
+      },
+    },
   },
 });

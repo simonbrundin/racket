@@ -1,6 +1,6 @@
 # Nuxt Minimal Starter
 
-d
+ds
 mer tesccs
 ad
 Testa

@@ -1,10 +1,5 @@
 # Nuxt Minimal Starter
 
-dsdaa
-mer tesccs
-ad
-Testa
-
 Look at the
 [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to
 learn more.

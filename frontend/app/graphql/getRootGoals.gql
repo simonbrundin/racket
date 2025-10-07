@@ -1,11 +1,6 @@
 query GetRootGoals($userId: Int!) {
   user_goals(where: {
-    user_id: { _eq: $userId },
-    goal: {
-      _not: {
-        goal_relations: {}
-      }
-    }
+    user_id: { _eq: $userId }
   }) {
     goal {
       id
@@ -16,5 +11,9 @@ query GetRootGoals($userId: Int!) {
         child_id
       }
     }
+  }
+  # Get all goal relations to determine which goals are children
+  goal_relations {
+    child_id
   }
 }

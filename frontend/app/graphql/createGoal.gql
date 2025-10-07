@@ -1,11 +1,6 @@
-mutation CreateGoal($title: String!, $userId: Int!) {
+mutation CreateGoal($title: String!) {
   insert_goals_one(object: {
     title: $title
-    user_goals: {
-      data: {
-        user_id: $userId
-      }
-    }
   }) {
     id
     title

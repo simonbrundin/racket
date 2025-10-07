@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Structure
 
-This is a full-stack application with:
+This is a full-stack goal management application with hierarchical goal tracking:
 - **Frontend**: Nuxt 4 (Vue 3) app in `frontend/` directory with TypeScript, Tailwind CSS, and Nuxt UI
-- **Backend**: Minimal backend setup in `backend/` (currently just config files)
-- **Environments**: Local dev environment in `environments/local/` and Kubernetes configurations in `environments/kubernetes/` with Hasura integration
+- **Backend**: Hasura GraphQL backend with Authentik OAuth integration for authentication
+- **Database**: PostgreSQL with Drizzle ORM schema management
+- **Environments**: Kubernetes configurations with Hasura, Tilt for local dev, ArgoCD for GitOps
 - **Database Schema**: Available at [drawdb.app](https://www.drawdb.app/editor?shareId=a3185456f5496cf6a48840b0ecfea7e0)
 
 ## Key Commands
@@ -16,23 +17,26 @@ This is a full-stack application with:
 ```bash
 # Frontend development (from frontend/ directory)
 cd frontend
-npm run dev        # Start Nuxt dev server
-npm run build      # Build for production
-npm run generate   # Generate static site
-npm run preview    # Preview production build
+bun run dev        # Start Nuxt dev server (use bun, not npm)
+bun run build      # Build for production
+bun run generate   # Generate static site
+bun run preview    # Preview production build
 
 # Testing
-npm run test       # Run all tests with Vitest
-npm run test:watch # Watch mode for tests
-npx vitest run test/nuxt/filename.spec.ts  # Run single test file
+bun run test       # Run all tests with Cucumber.js
+bun run test:watch # Watch mode for tests
+
+# Database
+bun run db:generate  # Generate Drizzle migrations
+bun run db:migrate   # Run migrations
+bun run db:push      # Push schema to database
+bun run db:studio    # Open Drizzle Studio
 ```
 
 ### Testing Architecture
-- **Vitest** with multi-project setup:
-  - `unit` project: Node environment for unit tests in `test/{e2e,unit}/`
-  - `nuxt` project: Nuxt environment for component tests in `test/nuxt/`
-- Test files use `.spec.ts` or `.test.ts` extensions
-- Setup file: `test/setup.ts`
+- **Cucumber.js** for BDD tests (primary test framework)
+- Test files in `frontend/test/` and `frontend/features/`
+- Watch mode available via `bun run test:watch`
 
 ## Frontend Architecture (Nuxt 4)
 
@@ -49,17 +53,22 @@ npx vitest run test/nuxt/filename.spec.ts  # Run single test file
 ```
 frontend/
 ├── app/
-│   ├── app.vue          # Root application component
-│   ├── pages/           # File-based routing
-│   ├── components/      # Vue components
-│   ├── assets/          # Static assets
-│   ├── lib/             # Utility libraries
-│   └── plugins/         # Nuxt plugins
-├── test/
-│   ├── setup.ts         # Test configuration
-│   ├── nuxt/            # Nuxt-specific tests
-│   └── unit/            # Unit tests
-└── nuxt.config.ts       # Nuxt configuration
+│   ├── app.vue              # Root application component
+│   ├── pages/               # File-based routing
+│   │   ├── index.vue        # Landing page
+│   │   ├── root-goals.vue   # Top-level goals (no parents)
+│   │   └── goal/[id].vue    # Individual goal detail page
+│   ├── components/          # Vue components
+│   ├── graphql/             # GraphQL query files (.gql)
+│   ├── stores/              # Pinia stores (goals.ts for state management)
+│   ├── plugins/             # Nuxt plugins (graphql-auth.ts for Hasura auth)
+│   └── lib/                 # Utility libraries
+├── server/
+│   ├── api/auth/            # Server API routes for authentication
+│   ├── routes/auth/         # OAuth routes (Authentik integration)
+│   └── db/                  # Database utilities and Drizzle setup
+├── drizzle/                 # Database migrations
+└── nuxt.config.ts           # Nuxt configuration
 ```
 
 ### Code Conventions (from CRUSH.md)
@@ -74,16 +83,43 @@ frontend/
 - **Nuxt UI** components available globally
 - **Lucide Vue** icons available
 
+## GraphQL & Data Architecture
+
+### Hasura Integration
+- GraphQL endpoint: `http://localhost:8080/v1/graphql` (local dev)
+- Production: `https://plan-hasura.simonbrundin.com/v1/graphql`
+- Authentication handled via `app/plugins/graphql-auth.ts`:
+  - Development: Uses admin secret (`dev-admin-secret`)
+  - Production: JWT tokens from Authentik with Hasura claims
+- GraphQL queries stored in `app/graphql/*.gql` files
+- Code generation via `nuxt-graphql-client` (disabled during build)
+
+### State Management
+- **Pinia store** (`app/stores/goals.ts`) for client-side state
+- Key entities:
+  - `goals`: All goal objects with id, title, created, finished
+  - `relations`: Parent-child relationships between goals (goal_relations table)
+- Computed getters for root goals, parents, children, search
+- Actions: loadGoals, addGoal, updateGoal, removeGoal, addRelation, removeRelation
+
+### Database Schema
+- **Goals**: Hierarchical goal system with parent-child relationships
+- **User Goals**: Many-to-many relationship (user_goals junction table)
+- **Authentication**: Users table with `sub` column for IdP integration (Authentik)
+- Schema managed with Drizzle ORM in `frontend/drizzle/`
+
 ## Environment Configuration
 
-API keys for various AI providers are configured via `.env` file (see `.env.example`):
-- `ANTHROPIC_API_KEY` (required)
-- Optional: Perplexity, OpenAI, Google, Mistral, xAI, Groq, OpenRouter, Azure, Ollama, GitHub
+Environment variables in `frontend/.env`:
+- `GQL_HOST`: Hasura GraphQL endpoint
+- `HASURA_GRAPHQL_ADMIN_SECRET`: Admin secret for development
+- `BETTER_AUTH_URL`: Authentication base URL
+- OAuth configuration for Authentik in `runtimeConfig`
 
 ## Deployment
 
 - **Docker-based** with multi-platform builds (linux/arm64)
-- **Kubernetes** configurations in `environments/kubernetes/`
-- **Local development** with Tilt and Docker Compose in `environments/local/`
-- **CI/CD**: GitHub Actions with semantic versioning and Kargo for GitOps
-- **Hasura** integration for GraphQL backend
+- **Kubernetes**: GitOps with ArgoCD, manifests in `environments/kubernetes/`
+- **Local development**: Tilt workflow (if configured in `environments/local/`)
+- **CI/CD**: GitHub Actions with semantic-release for versioning
+- **Hasura**: Deployed as separate service, handles GraphQL backend

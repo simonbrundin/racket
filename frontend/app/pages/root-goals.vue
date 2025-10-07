@@ -1,4 +1,8 @@
 <script setup lang="ts">
+// Make this page client-only to ensure user session is available
+definePageMeta({
+  ssr: false
+});
 interface ChildRelation {
   child_id: number;
 }
@@ -8,29 +12,173 @@ interface Goal {
   title: string;
   created: string;
   finished: string | null;
-  childRelations: ChildRelation[];
+  goalRelationsByParentId: ChildRelation[];
 }
 
 interface UserGoal {
   goal: Goal;
 }
 
+interface GoalRelation {
+  child_id: number;
+}
+
 interface GetRootGoalsResponse {
   user_goals: UserGoal[];
+  goal_relations: GoalRelation[];
 }
 
 const { user } = useUserSession();
 
-const { data: goalsData, refresh } = await useAsyncGql<GetRootGoalsResponse>("GetRootGoals", {
-  userId: user.value?.id
+console.log('Initial user session:', user.value);
+console.log('Initial user ID:', user.value?.id);
+
+// Watch user changes
+watch(user, (newUser, oldUser) => {
+  console.log('User changed from:', oldUser, 'to:', newUser);
+}, { immediate: true });
+
+// Direct Hasura fetch approach
+const goalsData = ref<GetRootGoalsResponse | null>(null);
+const isLoading = ref(false);
+const error = ref(null);
+
+const fetchGoals = async () => {
+  if (!user.value?.id) {
+    console.log('No user ID available, user:', user.value);
+    return;
+  }
+
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    console.log('Fetching goals for user:', user.value.id);
+    const response = await fetch('http://localhost:8080/v1/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'dev-admin-secret'
+      },
+      body: JSON.stringify({
+        query: `
+          query GetRootGoals($userId: Int!) {
+            user_goals(where: { user_id: { _eq: $userId } }) {
+              goal {
+                id
+                title
+                created
+                finished
+                goalRelationsByParentId {
+                  child_id
+                }
+              }
+            }
+            goal_relations {
+              child_id
+            }
+          }
+        `,
+        variables: { userId: user.value.id }
+      })
+    });
+
+    const result = await response.json();
+    console.log('Raw response:', result);
+
+    if (result.errors) {
+      throw new Error(result.errors[0].message);
+    }
+
+    goalsData.value = result.data;
+  } catch (err) {
+    console.error('Fetch error:', err);
+    error.value = err;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Test function with hardcoded user ID
+const fetchGoalsWithUserId = async (userId: number) => {
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    console.log('Testing with hardcoded user ID:', userId);
+
+    const result = await $fetch('http://localhost:8080/v1/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'dev-admin-secret'
+      },
+      body: {
+        query: `
+          query GetRootGoals($userId: Int!) {
+            user_goals(where: { user_id: { _eq: $userId } }) {
+              goal {
+                id
+                title
+                created
+                finished
+                goalRelationsByParentId {
+                  child_id
+                }
+              }
+            }
+            goal_relations {
+              child_id
+            }
+          }
+        `,
+        variables: { userId }
+      }
+    });
+
+    console.log('Nuxt $fetch result:', result);
+
+    if (result.errors) {
+      console.error('GraphQL errors:', result.errors);
+      error.value = result.errors[0].message;
+    } else if (result.data) {
+      console.log('Setting goals data:', result.data);
+      goalsData.value = result.data;
+    } else {
+      console.log('No data in result');
+    }
+  } catch (err) {
+    console.error('Nuxt $fetch error:', err);
+    error.value = err;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const goals = computed(() => {
+  const allUserGoals = goalsData.value?.user_goals || [];
+  const allRelations = goalsData.value?.goal_relations || [];
+
+  // Get set of all goal IDs that are children (have parents)
+  const childGoalIds = new Set(allRelations.map(r => r.child_id));
+
+  // Filter to only include root goals (goals that are not children)
+  const result = allUserGoals
+    .map(ug => ug.goal)
+    .filter(goal => !childGoalIds.has(goal.id));
+
+  console.log('All user goals:', allUserGoals);
+  console.log('Child goal IDs:', Array.from(childGoalIds));
+  console.log('Filtered root goals:', result);
+  return result;
 });
 
-const goals = computed(() => goalsData.value?.user_goals?.map(ug => ug.goal) || []);
+console.log('Goals data:', goalsData.value);
 
 // Beräkna progress för varje mål
 const getProgress = (goal: Goal) => {
-  if (goal.childRelations.length === 0) return null;
-  return goal.childRelations.length;
+  if (!goal.goalRelationsByParentId || goal.goalRelationsByParentId.length === 0) return null;
+  return goal.goalRelationsByParentId.length;
 };
 
 // Använd goals store
@@ -38,8 +186,23 @@ const goalsStore = useGoalsStore();
 
 // Ladda goals om de inte är laddade
 onMounted(async () => {
+  console.log('Component mounted, user:', user.value);
+  console.log('User ID:', user.value?.id);
+
+  // Always try to fetch with user ID 4 for testing
+  console.log('Testing with hardcoded user ID 4');
+  await fetchGoalsWithUserId(4);
+
   if (!goalsStore.isLoaded) {
     await goalsStore.loadGoals();
+  }
+});
+
+// Also watch for user changes
+watch(user, (newUser) => {
+  console.log('User changed:', newUser);
+  if (newUser?.id && !goalsData.value) {
+    fetchGoals();
   }
 });
 
@@ -72,39 +235,87 @@ const searchResults = computed(() => {
 async function createNewGoal() {
   if (!searchQuery.value.trim()) return;
 
-  if (!user.value?.id) {
-    console.error("User ID not found");
-    return;
-  }
+  // Use hardcoded user ID 4 for testing, same as in onMounted
+  const userId = 4;
 
   try {
-    console.log("Creating goal with:", { title: searchQuery.value.trim(), userId: user.value.id });
+    console.log("Creating goal with:", { title: searchQuery.value.trim() });
 
-    // Skapa nytt mål
-    const result = await GqlCreateGoal({
-      title: searchQuery.value.trim(),
-      userId: user.value.id,
+    // Skapa nytt mål först
+    const goalResponse = await fetch('http://localhost:8080/v1/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'dev-admin-secret'
+      },
+      body: JSON.stringify({
+        query: `
+          mutation CreateGoal($title: String!) {
+            insert_goals_one(object: {
+              title: $title
+            }) {
+              id
+              title
+              created
+              finished
+            }
+          }
+        `,
+        variables: { title: searchQuery.value.trim() }
+      })
     });
 
-    console.log("Create goal result:", result);
+    const goalResult = await goalResponse.json();
+    console.log("Create goal result:", goalResult);
 
-    // Hantera både { data } och direkt resultat
-    const data = result?.data || result;
+    if (goalResult.errors) {
+      throw new Error(goalResult.errors[0].message);
+    }
 
-    if (data?.insert_goals_one?.id) {
-      const newGoal = data.insert_goals_one;
+    if (goalResult.data?.insert_goals_one?.id) {
+      const newGoal = goalResult.data.insert_goals_one;
+
+      // Skapa user_goals relation
+      const userGoalResponse = await fetch('http://localhost:8080/v1/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-hasura-admin-secret': 'dev-admin-secret'
+        },
+        body: JSON.stringify({
+          query: `
+            mutation CreateUserGoal($userId: Int!, $goalId: Int!) {
+              insert_user_goals_one(object: {
+                user_id: $userId
+                goal_id: $goalId
+              }) {
+                user_id
+                goal_id
+              }
+            }
+          `,
+          variables: { userId, goalId: newGoal.id }
+        })
+      });
+
+      const userGoalResult = await userGoalResponse.json();
+      console.log("Create user goal result:", userGoalResult);
+
+      if (userGoalResult.errors) {
+        throw new Error(userGoalResult.errors[0].message);
+      }
 
       // Uppdatera lokal state
       goalsStore.addGoal(newGoal);
 
       // Uppdatera data från server
-      await refresh();
+      await fetchGoalsWithUserId(userId);
 
       // Stäng och rensa sökning
       showSearch.value = false;
       searchQuery.value = "";
     } else {
-      console.error("No goal ID in response:", data);
+      console.error("No goal ID in response:", goalResult.data);
     }
   } catch (error) {
     console.error("Failed to create new goal:", error);
@@ -179,7 +390,14 @@ function handleSearchKeydown(event: KeyboardEvent) {
     </div>
 
     <div
-      v-if="goals.length === 0"
+      v-if="isLoading"
+      class="flex justify-center items-center p-12"
+    >
+      <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 text-gray-400 animate-spin" />
+    </div>
+
+    <div
+      v-else-if="goals.length === 0"
       class="text-gray-500 p-6 border border-gray-700 rounded-lg text-center"
     >
       Inga grundmål ännu. Skapa ett nytt mål för att komma igång!

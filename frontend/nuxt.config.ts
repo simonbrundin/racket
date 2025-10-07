@@ -42,9 +42,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       authBaseUrl: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-      GQL_HOST: process.env.NODE_ENV === 'production'
-        ? "https://plan-hasura.simonbrundin.com/v1/graphql"
-        : "http://localhost:8080/v1/graphql",
+      gqlHost: "http://localhost:8080/v1/graphql", // Default för dev
     },
     // oauth: {
     //   // provider in lowercase (github, google, etc.)
@@ -75,9 +73,8 @@ export default defineNuxtConfig({
     },
     clients: {
       default: {
-        host: process.env.GQL_HOST || (process.env.NODE_ENV === 'production'
-          ? "https://plan-hasura.simonbrundin.com/v1/graphql"
-          : "http://localhost:8080/v1/graphql"),
+        // This will be overridden at runtime by NUXT_PUBLIC_GQL_HOST env var
+        host: "http://localhost:8080/v1/graphql",
         token: {
           type: 'Bearer',
           name: 'Authorization',

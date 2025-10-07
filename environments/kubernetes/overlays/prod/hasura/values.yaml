@@ -7,7 +7,7 @@ secret:
     claims_map:
       x-hasura-default-role: "user"
       x-hasura-allowed-roles: ["user", "admin"]
-      x-hasura-user-id: "sub"
+      x-hasura-user-sub: "sub"
 
 config:
   enableConsole: true

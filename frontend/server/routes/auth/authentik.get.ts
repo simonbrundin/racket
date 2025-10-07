@@ -1,12 +1,34 @@
+import { db } from "../../utils/db";
+import { users } from "../../../drizzle/schema";
+import { eq } from "drizzle-orm";
+
 export default defineOAuthAuthentikEventHandler({
   config: {
     emailRequired: true,
   },
   async onSuccess(event, { user, tokens }) {
+    // Find or create user in database
+    let dbUser = await db.query.users.findFirst({
+      where: eq(users.sub, user.sub),
+    });
+
+    if (!dbUser) {
+      // Create new user
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          sub: user.sub,
+          email: user.email,
+        })
+        .returning();
+      dbUser = newUser;
+    }
+
     await setUserSession(event, {
       user: {
-        id: user.sub,
-        email: user.email,
+        id: dbUser.id,
+        sub: dbUser.sub,
+        email: dbUser.email,
       },
       session: {
         loginTime: Date.now(),

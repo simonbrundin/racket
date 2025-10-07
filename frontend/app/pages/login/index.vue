@@ -7,6 +7,14 @@ const { loggedIn, user, session, fetch, clear, openInPopup } = useUserSession();
     <h1 class="text-3xl font-bold text-gray-300 mb-2" v-if="user">Inloggad</h1>
     <h1 class="text-3xl font-bold text-gray-300 mb-2" v-else>Utloggad</h1>
 
+    <p v-if="user" class="mb-2">
+      User ID: <span class="font-mono text-sm">{{ user.id }}</span>
+    </p>
+
+    <p v-if="user" class="mb-2">
+      Sub: <span class="font-mono text-sm">{{ user.sub }}</span>
+    </p>
+
     <p>
       Inloggad sedan
       {{

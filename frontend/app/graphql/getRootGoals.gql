@@ -1,15 +1,20 @@
-query GetRootGoals {
-  goals(where: {
-    _not: {
-      goal_relations: {}
+query GetRootGoals($userId: Int!) {
+  user_goals(where: {
+    user_id: { _eq: $userId },
+    goal: {
+      _not: {
+        goal_relations: {}
+      }
     }
   }) {
-    id
-    title
-    created
-    finished
-    childRelations: goalRelationsByParentId {
-      child_id
+    goal {
+      id
+      title
+      created
+      finished
+      childRelations: goalRelationsByParentId {
+        child_id
+      }
     }
   }
 }

@@ -1,16 +1,17 @@
 import { pgTable, unique, integer, varchar, timestamp, foreignKey, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
-import { relations } from "drizzle-orm"
 
 
 
 export const users = pgTable("users", {
 	id: integer().primaryKey().generatedByDefaultAsIdentity({ name: "users_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 2147483647, cache: 1 }),
+	sub: varchar({ length: 255 }).notNull(),
 	email: varchar({ length: 40 }).notNull(),
 	firstName: varchar("first_name", { length: 16 }),
 	lastName: varchar("last_name", { length: 40 }),
 	created: timestamp({ withTimezone: true, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
+	unique("users_sub_key").on(table.sub),
 	unique("users_email_key").on(table.email),
 ]);
 
@@ -54,38 +55,3 @@ export const goalRelations = pgTable("goal_relations", {
 		}),
 	primaryKey({ columns: [table.parentId, table.childId], name: "goal_relations_pkey"}),
 ]);
-
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-	userGoals: many(userGoals),
-}));
-
-export const goalsRelations = relations(goals, ({ many }) => ({
-	userGoals: many(userGoals),
-	parents: many(goalRelations, { relationName: "children" }),
-	children: many(goalRelations, { relationName: "parents" }),
-}));
-
-export const userGoalsRelations = relations(userGoals, ({ one }) => ({
-	user: one(users, {
-		fields: [userGoals.userId],
-		references: [users.id],
-	}),
-	goal: one(goals, {
-		fields: [userGoals.goalId],
-		references: [goals.id],
-	}),
-}));
-
-export const goalRelationsRelations = relations(goalRelations, ({ one }) => ({
-	parent: one(goals, {
-		fields: [goalRelations.parentId],
-		references: [goals.id],
-		relationName: "children",
-	}),
-	child: one(goals, {
-		fields: [goalRelations.childId],
-		references: [goals.id],
-		relationName: "parents",
-	}),
-}));

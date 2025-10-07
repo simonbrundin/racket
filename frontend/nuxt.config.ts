@@ -82,6 +82,8 @@ export default defineNuxtConfig({
           type: 'Bearer',
           name: 'Authorization',
         },
+        // Admin secret is used for schema introspection during codegen
+        // The graphql-auth.ts plugin will override this with JWT tokens at runtime
         headers: process.env.HASURA_GRAPHQL_ADMIN_SECRET ? {
           'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET
         } : {},

@@ -1,10 +1,10 @@
 -- Development test data
 -- Add your dev user and test goals here
 
-INSERT INTO users (email, first_name, last_name) VALUES
-  ('simon@dev.local', 'Simon', 'Dev'),
-  ('alice@dev.local', 'Alice', 'Developer'),
-  ('bob@dev.local', 'Bob', 'Tester');
+INSERT INTO users (sub, email, first_name, last_name) VALUES
+  ('dev-simon-123', 'simon@dev.local', 'Simon', 'Dev'),
+  ('dev-alice-456', 'alice@dev.local', 'Alice', 'Developer'),
+  ('dev-bob-789', 'bob@dev.local', 'Bob', 'Tester');
 
 INSERT INTO goals (title, finished) VALUES
   ('Build MVP', NULL),

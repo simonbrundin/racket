@@ -1,10 +1,8 @@
 query GetUserGoals {
-  user_goals {
-    goal {
-      id
-      title
-      created
-      finished
-    }
+  goals(where: {user_goals: {user: {sub: {_eq: "x-hasura-user-sub"}}}}) {
+    id
+    title
+    created
+    finished
   }
 }

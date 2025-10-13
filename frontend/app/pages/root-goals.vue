@@ -189,10 +189,6 @@ onMounted(async () => {
   console.log('Component mounted, user:', user.value);
   console.log('User ID:', user.value?.id);
 
-  // Always try to fetch with user ID 4 for testing
-  console.log('Testing with hardcoded user ID 4');
-  await fetchGoalsWithUserId(4);
-
   if (!goalsStore.isLoaded) {
     await goalsStore.loadGoals();
   }
@@ -235,87 +231,48 @@ const searchResults = computed(() => {
 async function createNewGoal() {
   if (!searchQuery.value.trim()) return;
 
-  // Use hardcoded user ID 4 for testing, same as in onMounted
-  const userId = 4;
+  const userId = user.value?.id;
+  if (!userId) {
+    console.error("No user logged in");
+    return;
+  }
 
   try {
-    console.log("Creating goal with:", { title: searchQuery.value.trim() });
+    console.log("Creating goal with:", { title: searchQuery.value.trim(), userId });
 
     // Skapa nytt mål först
-    const goalResponse = await fetch('http://localhost:8080/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': 'dev-admin-secret'
-      },
-      body: JSON.stringify({
-        query: `
-          mutation CreateGoal($title: String!) {
-            insert_goals_one(object: {
-              title: $title
-            }) {
-              id
-              title
-              created
-              finished
-            }
-          }
-        `,
-        variables: { title: searchQuery.value.trim() }
-      })
+    const { data: goalData, error: goalError } = await useAsyncGql('CreateGoal', {
+      title: searchQuery.value.trim()
     });
 
-    const goalResult = await goalResponse.json();
-    console.log("Create goal result:", goalResult);
-
-    if (goalResult.errors) {
-      throw new Error(goalResult.errors[0].message);
+    if (goalError.value) {
+      throw new Error(goalError.value.message);
     }
 
-    if (goalResult.data?.insert_goals_one?.id) {
-      const newGoal = goalResult.data.insert_goals_one;
+    if (goalData.value?.insert_goals_one?.id) {
+      const newGoal = goalData.value.insert_goals_one;
 
       // Skapa user_goals relation
-      const userGoalResponse = await fetch('http://localhost:8080/v1/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-hasura-admin-secret': 'dev-admin-secret'
-        },
-        body: JSON.stringify({
-          query: `
-            mutation CreateUserGoal($userId: Int!, $goalId: Int!) {
-              insert_user_goals_one(object: {
-                user_id: $userId
-                goal_id: $goalId
-              }) {
-                user_id
-                goal_id
-              }
-            }
-          `,
-          variables: { userId, goalId: newGoal.id }
-        })
+      const { data: userGoalData, error: userGoalError } = await useAsyncGql('CreateUserGoal', {
+        userId,
+        goalId: newGoal.id
       });
 
-      const userGoalResult = await userGoalResponse.json();
-      console.log("Create user goal result:", userGoalResult);
-
-      if (userGoalResult.errors) {
-        throw new Error(userGoalResult.errors[0].message);
+      if (userGoalError.value) {
+        throw new Error(userGoalError.value.message);
       }
 
       // Uppdatera lokal state
       goalsStore.addGoal(newGoal);
 
       // Uppdatera data från server
-      await fetchGoalsWithUserId(userId);
+      await goalsStore.loadGoals();
 
       // Stäng och rensa sökning
       showSearch.value = false;
       searchQuery.value = "";
     } else {
-      console.error("No goal ID in response:", goalResult.data);
+      console.error("No goal ID in response:", goalData.value);
     }
   } catch (error) {
     console.error("Failed to create new goal:", error);
@@ -335,7 +292,7 @@ function handleSearchKeydown(event: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto p-6">
+  <div v-if="user" class="max-w-4xl mx-auto p-6">
     <div class="mb-8">
       <div class="flex items-center justify-between mb-2">
         <h1 class="text-3xl font-bold text-gray-300">Grundmål</h1>
@@ -439,5 +396,14 @@ function handleSearchKeydown(event: KeyboardEvent) {
         </NuxtLink>
       </li>
     </ul>
+  </div>
+  <div v-else class="max-w-4xl mx-auto p-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-300 mb-4">Du måste logga in</h1>
+      <p class="text-gray-600 mb-6">För att se dina mål måste du vara inloggad.</p>
+      <NuxtLink to="/login">
+        <UButton>Logga in</UButton>
+      </NuxtLink>
+    </div>
   </div>
 </template>

@@ -6,6 +6,7 @@ definePageMeta({
 
 const route = useRoute();
 const goalId = parseInt(route.params.id as string);
+const { user } = useUserSession();
 
 interface Goal {
   id: number;
@@ -228,64 +229,43 @@ async function addExistingParent(parentId: number) {
 async function createNewParent() {
   if (!parentSearchQuery.value.trim()) return;
 
+  const userId = user.value?.id;
+  if (!userId) {
+    console.error("No user logged in");
+    return;
+  }
+
   try {
     // Skapa nytt mål
-    const goalResponse = await fetch('http://localhost:8080/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': 'dev-admin-secret'
-      },
-      body: JSON.stringify({
-        query: `
-          mutation CreateGoal($title: String!) {
-            insert_goals_one(object: {
-              title: $title
-            }) {
-              id
-              title
-              created
-              finished
-            }
-          }
-        `,
-        variables: { title: parentSearchQuery.value.trim() }
-      })
+    const { data: goalData, error: goalError } = await useAsyncGql('CreateGoal', {
+      title: parentSearchQuery.value.trim()
     });
 
-    const goalResult = await goalResponse.json();
-    if (goalResult.errors) {
-      throw new Error(goalResult.errors[0].message);
+    if (goalError.value) {
+      throw new Error(goalError.value.message);
     }
 
-    if (goalResult.data?.insert_goals_one?.id) {
-      const newGoal = goalResult.data.insert_goals_one;
+    if (goalData.value?.insert_goals_one?.id) {
+      const newGoal = goalData.value.insert_goals_one;
 
-      // Skapa relationen i databasen
-      const relationResponse = await fetch('http://localhost:8080/v1/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-hasura-admin-secret': 'dev-admin-secret'
-        },
-        body: JSON.stringify({
-          query: `
-            mutation AddParentRelation($childId: Int!, $parentId: Int!) {
-              insert_goal_relations_one(
-                object: { child_id: $childId, parent_id: $parentId }
-              ) {
-                child_id
-                parent_id
-              }
-            }
-          `,
-          variables: { childId: goalId, parentId: newGoal.id }
-        })
+      // Skapa user_goals relation
+      const { data: userGoalData, error: userGoalError } = await useAsyncGql('CreateUserGoal', {
+        userId,
+        goalId: newGoal.id
       });
 
-      const relationResult = await relationResponse.json();
-      if (relationResult.errors) {
-        throw new Error(relationResult.errors[0].message);
+      if (userGoalError.value) {
+        throw new Error(userGoalError.value.message);
+      }
+
+      // Skapa relationen i databasen
+      const { data: relationData, error: relationError } = await useAsyncGql('AddParentRelation', {
+        childId: goalId,
+        parentId: newGoal.id
+      });
+
+      if (relationError.value) {
+        throw new Error(relationError.value.message);
       }
 
       // Uppdatera lokal state
@@ -293,7 +273,7 @@ async function createNewParent() {
       goalsStore.addRelation(goalId, newGoal.id);
 
       // Uppdatera data från server
-      await refresh();
+      await goalsStore.loadGoals();
 
       // Stäng och rensa sökning
       showParentSearch.value = false;
@@ -394,6 +374,12 @@ async function addExistingChild(childId: number) {
 async function createNewChild() {
   if (!childSearchQuery.value.trim()) return;
 
+  const userId = user.value?.id;
+  if (!userId) {
+    console.error("No user logged in");
+    return;
+  }
+
   try {
     console.log(
       "Creating new child with title:",
@@ -401,38 +387,16 @@ async function createNewChild() {
     );
 
     // Skapa nytt mål
-    const goalResponse = await fetch('http://localhost:8080/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': 'dev-admin-secret'
-      },
-      body: JSON.stringify({
-        query: `
-          mutation CreateGoal($title: String!) {
-            insert_goals_one(object: {
-              title: $title
-            }) {
-              id
-              title
-              created
-              finished
-            }
-          }
-        `,
-        variables: { title: childSearchQuery.value.trim() }
-      })
+    const { data: goalData, error: goalError } = await useAsyncGql('CreateGoal', {
+      title: childSearchQuery.value.trim()
     });
 
-    const goalResult = await goalResponse.json();
-    console.log("Created goal result:", goalResult);
-
-    if (goalResult.errors) {
-      throw new Error(goalResult.errors[0].message);
+    if (goalError.value) {
+      throw new Error(goalError.value.message);
     }
 
-    if (goalResult.data?.insert_goals_one?.id) {
-      const newGoal = goalResult.data.insert_goals_one;
+    if (goalData.value?.insert_goals_one?.id) {
+      const newGoal = goalData.value.insert_goals_one;
 
       console.log(
         "Adding relation - childId:",
@@ -441,33 +405,24 @@ async function createNewChild() {
         goalId,
       );
 
-      // Skapa relationen i databasen
-      const relationResponse = await fetch('http://localhost:8080/v1/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-hasura-admin-secret': 'dev-admin-secret'
-        },
-        body: JSON.stringify({
-          query: `
-            mutation AddParentRelation($childId: Int!, $parentId: Int!) {
-              insert_goal_relations_one(
-                object: { child_id: $childId, parent_id: $parentId }
-              ) {
-                child_id
-                parent_id
-              }
-            }
-          `,
-          variables: { childId: newGoal.id, parentId: goalId }
-        })
+      // Skapa user_goals relation
+      const { data: userGoalData, error: userGoalError } = await useAsyncGql('CreateUserGoal', {
+        userId,
+        goalId: newGoal.id
       });
 
-      const relationResult = await relationResponse.json();
-      console.log("Relation created:", relationResult);
+      if (userGoalError.value) {
+        throw new Error(userGoalError.value.message);
+      }
 
-      if (relationResult.errors) {
-        throw new Error(relationResult.errors[0].message);
+      // Skapa relationen i databasen
+      const { data: relationData, error: relationError } = await useAsyncGql('AddParentRelation', {
+        childId: newGoal.id,
+        parentId: goalId
+      });
+
+      if (relationError.value) {
+        throw new Error(relationError.value.message);
       }
 
       // Uppdatera lokal state
@@ -475,7 +430,7 @@ async function createNewChild() {
       goalsStore.addRelation(newGoal.id, goalId);
 
       // Uppdatera data från server
-      await refresh();
+      await goalsStore.loadGoals();
 
       // Stäng och rensa sökning
       showChildSearch.value = false;
@@ -681,7 +636,7 @@ function getSwipeOffset(childId: number): number {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto p-6">
+  <div v-if="user" class="max-w-4xl mx-auto p-6">
     <div v-if="!goal" class="text-center py-12">
       <p class="text-gray-500">Laddar mål...</p>
     </div>
@@ -971,5 +926,14 @@ function getSwipeOffset(childId: number): number {
         </div>
       </template>
     </UModal>
+  </div>
+  <div v-else class="max-w-4xl mx-auto p-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-300 mb-4">Du måste logga in</h1>
+      <p class="text-gray-600 mb-6">För att se dina mål måste du vara inloggad.</p>
+      <NuxtLink to="/login">
+        <UButton>Logga in</UButton>
+      </NuxtLink>
+    </div>
   </div>
 </template>

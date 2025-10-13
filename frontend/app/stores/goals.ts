@@ -17,6 +17,7 @@ export const useGoalsStore = defineStore('goals', {
     goals: [] as Goal[],
     relations: [] as GoalRelation[],
     isLoaded: false,
+    error: null as string | null,
   }),
 
   getters: {
@@ -63,30 +64,50 @@ export const useGoalsStore = defineStore('goals', {
     // Ladda alla mål och relationer
     async loadGoals() {
       try {
-        const { data } = await useAsyncGql('GetAllGoals')
+        this.error = null
 
-        if (data.value?.goals) {
-          this.goals = data.value.goals
+        const { data, error: goalsError } = await useAsyncGql('GetUserGoals')
+
+        if (goalsError.value) {
+          console.error('GraphQL error loading goals:', goalsError.value)
+          this.error = 'Failed to load goals'
+          return
         }
 
-        // Hämta alla relationer
-        const relationsQuery = `
-          query GetAllRelations {
-            goal_relations {
-              child_id
-              parent_id
-            }
-          }
-        `
+        if (data.value?.goals && Array.isArray(data.value.goals)) {
+          // Validate and sanitize goal data to prevent hydration issues
+          this.goals = data.value.goals.filter(goal =>
+            goal &&
+            typeof goal === 'object' &&
+            typeof goal.id === 'number' &&
+            typeof goal.title === 'string'
+          )
+        }
 
-        const { data: relationsData } = await useAsyncGql('GetAllRelations')
-        if (relationsData.value?.goal_relations) {
-          this.relations = relationsData.value.goal_relations
+        const { data: relationsData, error: relationsError } = await useAsyncGql('GetUserRelations')
+
+        if (relationsError.value) {
+          console.error('GraphQL error loading relations:', relationsError.value)
+          this.error = 'Failed to load goal relations'
+          return
+        }
+
+        if (relationsData.value?.goal_relations && Array.isArray(relationsData.value.goal_relations)) {
+          // Validate and sanitize relation data
+          this.relations = relationsData.value.goal_relations.filter(relation =>
+            relation &&
+            typeof relation === 'object' &&
+            typeof relation.child_id === 'number' &&
+            typeof relation.parent_id === 'number'
+          )
         }
 
         this.isLoaded = true
+        console.log(`Loaded ${this.goals.length} goals and ${this.relations.length} relations`)
       } catch (error) {
         console.error('Failed to load goals:', error)
+        this.error = error instanceof Error ? error.message : 'Unknown error loading goals'
+        // Don't set isLoaded to true on error to allow retry
       }
     },
 
@@ -129,6 +150,19 @@ export const useGoalsStore = defineStore('goals', {
       this.relations = this.relations.filter(
         r => !(r.child_id === childId && r.parent_id === parentId)
       )
+    },
+
+    // Clear error state
+    clearError() {
+      this.error = null
+    },
+
+    // Reset store state (useful for error recovery)
+    reset() {
+      this.goals = []
+      this.relations = []
+      this.isLoaded = false
+      this.error = null
     },
   },
 })

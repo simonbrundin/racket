@@ -16,6 +16,41 @@ call_metadata_api() {
 
 # 1. Create user role permissions for goals table
 echo "Setting up goals table permissions..."
+
+# Drop existing permissions first
+call_metadata_api '{
+  "type": "pg_drop_select_permission",
+  "args": {
+    "table": "goals",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_insert_permission",
+  "args": {
+    "table": "goals",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_update_permission",
+  "args": {
+    "table": "goals",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_delete_permission",
+  "args": {
+    "table": "goals",
+    "role": "user"
+  }
+}'
+
+# Create new permissions
 call_metadata_api '{
   "type": "pg_create_select_permission",
   "args": {
@@ -25,10 +60,8 @@ call_metadata_api '{
       "columns": ["id", "title", "created", "finished"],
       "filter": {
         "user_goals": {
-          "user": {
-            "sub": {
-              "_eq": "X-Hasura-User-Sub"
-            }
+          "user_id": {
+            "_eq": "X-Hasura-User-Id"
           }
         }
       }
@@ -57,10 +90,8 @@ call_metadata_api '{
       "columns": ["title", "finished"],
       "filter": {
         "user_goals": {
-          "user": {
-            "sub": {
-              "_eq": "X-Hasura-User-Sub"
-            }
+          "user_id": {
+            "_eq": "X-Hasura-User-Id"
           }
         }
       }
@@ -76,10 +107,8 @@ call_metadata_api '{
     "permission": {
       "filter": {
         "user_goals": {
-          "user": {
-            "sub": {
-              "_eq": "X-Hasura-User-Sub"
-            }
+          "user_id": {
+            "_eq": "X-Hasura-User-Id"
           }
         }
       }
@@ -89,6 +118,25 @@ call_metadata_api '{
 
 # 2. Create user role permissions for user_goals table
 echo "Setting up user_goals table permissions..."
+
+# Drop existing permissions
+call_metadata_api '{
+  "type": "pg_drop_select_permission",
+  "args": {
+    "table": "user_goals",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_insert_permission",
+  "args": {
+    "table": "user_goals",
+    "role": "user"
+  }
+}'
+
+# Create new permissions
 call_metadata_api '{
   "type": "pg_create_select_permission",
   "args": {
@@ -97,10 +145,8 @@ call_metadata_api '{
     "permission": {
       "columns": ["user_id", "goal_id"],
       "filter": {
-        "user": {
-          "sub": {
-            "_eq": "X-Hasura-User-Sub"
-          }
+        "user_id": {
+          "_eq": "X-Hasura-User-Id"
         }
       }
     }
@@ -114,10 +160,8 @@ call_metadata_api '{
     "role": "user",
     "permission": {
       "check": {
-        "user": {
-          "sub": {
-            "_eq": "X-Hasura-User-Sub"
-          }
+        "user_id": {
+          "_eq": "X-Hasura-User-Id"
         }
       },
       "columns": ["goal_id"]
@@ -127,6 +171,33 @@ call_metadata_api '{
 
 # 3. Create user role permissions for goal_relations table
 echo "Setting up goal_relations table permissions..."
+
+# Drop existing permissions
+call_metadata_api '{
+  "type": "pg_drop_select_permission",
+  "args": {
+    "table": "goal_relations",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_insert_permission",
+  "args": {
+    "table": "goal_relations",
+    "role": "user"
+  }
+}'
+
+call_metadata_api '{
+  "type": "pg_drop_delete_permission",
+  "args": {
+    "table": "goal_relations",
+    "role": "user"
+  }
+}'
+
+# Create new permissions
 call_metadata_api '{
   "type": "pg_create_select_permission",
   "args": {
@@ -135,15 +206,26 @@ call_metadata_api '{
     "permission": {
       "columns": ["parent_id", "child_id"],
       "filter": {
-        "goalByParentId": {
-          "user_goals": {
-            "user": {
-              "sub": {
-                "_eq": "X-Hasura-User-Sub"
+        "_and": [
+          {
+            "goalByParentId": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
+              }
+            }
+          },
+          {
+            "goal": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
               }
             }
           }
-        }
+        ]
       }
     }
   }
@@ -156,15 +238,26 @@ call_metadata_api '{
     "role": "user",
     "permission": {
       "check": {
-        "goalByParentId": {
-          "user_goals": {
-            "user": {
-              "sub": {
-                "_eq": "X-Hasura-User-Sub"
+        "_and": [
+          {
+            "goalByParentId": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
+              }
+            }
+          },
+          {
+            "goal": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
               }
             }
           }
-        }
+        ]
       },
       "columns": ["parent_id", "child_id"]
     }
@@ -178,15 +271,26 @@ call_metadata_api '{
     "role": "user",
     "permission": {
       "filter": {
-        "goalByParentId": {
-          "user_goals": {
-            "user": {
-              "sub": {
-                "_eq": "X-Hasura-User-Sub"
+        "_and": [
+          {
+            "goalByParentId": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
+              }
+            }
+          },
+          {
+            "goal": {
+              "user_goals": {
+                "user_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
               }
             }
           }
-        }
+        ]
       }
     }
   }
@@ -194,6 +298,17 @@ call_metadata_api '{
 
 # 4. Setup user table permissions (read only own user)
 echo "Setting up users table permissions..."
+
+# Drop existing permission
+call_metadata_api '{
+  "type": "pg_drop_select_permission",
+  "args": {
+    "table": "users",
+    "role": "user"
+  }
+}'
+
+# Create new permission
 call_metadata_api '{
   "type": "pg_create_select_permission",
   "args": {
@@ -202,8 +317,8 @@ call_metadata_api '{
     "permission": {
       "columns": ["id", "sub", "email", "first_name", "last_name", "created"],
       "filter": {
-        "sub": {
-          "_eq": "X-Hasura-User-Sub"
+        "id": {
+          "_eq": "X-Hasura-User-Id"
         }
       }
     }

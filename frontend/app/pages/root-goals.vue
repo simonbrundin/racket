@@ -44,53 +44,21 @@ const isLoading = ref(false);
 const error = ref(null);
 
 const fetchGoals = async () => {
-  if (!user.value?.id) {
-    console.log('No user ID available, user:', user.value);
-    return;
-  }
-
   isLoading.value = true;
   error.value = null;
 
   try {
-    console.log('Fetching goals for user:', user.value.id);
-    const response = await fetch('http://localhost:8080/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': 'dev-admin-secret'
-      },
-      body: JSON.stringify({
-        query: `
-          query GetRootGoals($userId: Int!) {
-            user_goals(where: { user_id: { _eq: $userId } }) {
-              goal {
-                id
-                title
-                created
-                finished
-                goalRelationsByParentId {
-                  child_id
-                }
-              }
-            }
-            goal_relations {
-              child_id
-            }
-          }
-        `,
-        variables: { userId: user.value.id }
-      })
-    });
+    console.log('Fetching root goals');
+    const { data, error: gqlError } = await useAsyncGql('GetRootGoals');
 
-    const result = await response.json();
-    console.log('Raw response:', result);
-
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
+    if (gqlError.value) {
+      throw new Error(gqlError.value.message);
     }
 
-    goalsData.value = result.data;
+    if (data.value) {
+      goalsData.value = data.value;
+      console.log('Fetched goals data:', data.value);
+    }
   } catch (err) {
     console.error('Fetch error:', err);
     error.value = err;
@@ -99,61 +67,7 @@ const fetchGoals = async () => {
   }
 };
 
-// Test function with hardcoded user ID
-const fetchGoalsWithUserId = async (userId: number) => {
-  isLoading.value = true;
-  error.value = null;
 
-  try {
-    console.log('Testing with hardcoded user ID:', userId);
-
-    const result = await $fetch('http://localhost:8080/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-hasura-admin-secret': 'dev-admin-secret'
-      },
-      body: {
-        query: `
-          query GetRootGoals($userId: Int!) {
-            user_goals(where: { user_id: { _eq: $userId } }) {
-              goal {
-                id
-                title
-                created
-                finished
-                goalRelationsByParentId {
-                  child_id
-                }
-              }
-            }
-            goal_relations {
-              child_id
-            }
-          }
-        `,
-        variables: { userId }
-      }
-    });
-
-    console.log('Nuxt $fetch result:', result);
-
-    if (result.errors) {
-      console.error('GraphQL errors:', result.errors);
-      error.value = result.errors[0].message;
-    } else if (result.data) {
-      console.log('Setting goals data:', result.data);
-      goalsData.value = result.data;
-    } else {
-      console.log('No data in result');
-    }
-  } catch (err) {
-    console.error('Nuxt $fetch error:', err);
-    error.value = err;
-  } finally {
-    isLoading.value = false;
-  }
-};
 
 const goals = computed(() => {
   const allUserGoals = goalsData.value?.user_goals || [];
@@ -194,10 +108,10 @@ onMounted(async () => {
   }
 });
 
-// Also watch for user changes
+// Watch for user changes
 watch(user, (newUser) => {
   console.log('User changed:', newUser);
-  if (newUser?.id && !goalsData.value) {
+  if (newUser && !goalsData.value) {
     fetchGoals();
   }
 });

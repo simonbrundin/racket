@@ -1,8 +1,8 @@
 query GetUserRelations {
   goal_relations(where: {
     _and: [
-      { goalByParentId: { user_goals: { user: { sub: {_eq: "x-hasura-user-sub"} } } } },
-      { goal: { user_goals: { user: { sub: {_eq: "x-hasura-user-sub"} } } } }
+      { goalByParentId: { user_goals: { user: { sub: {_eq: "X-Hasura-User-Sub"} } } } },
+      { goal: { user_goals: { user: { sub: {_eq: "X-Hasura-User-Sub"} } } } }
     ]
   }) {
     parent_id

@@ -1,5 +1,5 @@
 query GetUserGoals {
-  goals(where: {user_goals: {user: {sub: {_eq: "x-hasura-user-sub"}}}}) {
+  goals(where: {user_goals: {user: {sub: {_eq: "X-Hasura-User-Sub"}}}}) {
     id
     title
     created

@@ -18,7 +18,7 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-            - name: GQL_HOST
+            - name: NUXT_PUBLIC_GQL_HOST
               value: "https://plan-hasura.simonbrundin.com/v1/graphql"
             - name: DATABASE_URL
               valueFrom:

@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       authBaseUrl: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-      GQL_HOST: "http://localhost:8080/v1/graphql", // overwritten by process.env.GQL_HOST
+      GQL_HOST: "http://localhost:8080/v1/graphql", // overwritten by NUXT_PUBLIC_GQL_HOST
     },
     // oauth: {
     //   // provider in lowercase (github, google, etc.)

@@ -11,5 +11,8 @@ helmCharts:
 resources:
   - HTTP-route.yaml
 
-patchesStrategicMerge:
-  - deployment-patch.yaml
+patches:
+  - path: deployment-patch.yaml
+    target:
+      kind: Deployment
+      name: hasura

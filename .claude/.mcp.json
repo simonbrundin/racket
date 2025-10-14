@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mcphub": {
+      "type": "http",
+      "url": "https://mcp.simonbrundin.com/mcp",
+      "headers": {
+        "Authorization": "${MCP_AUTH_HEADER}"
+      }
+    }
+  }
+}

@@ -9,5 +9,4 @@ helmCharts:
     namespace: hasura
     valuesFile: values.yaml
 resources:
-  - secret.yaml
   - HTTP-route.yaml

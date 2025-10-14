@@ -73,13 +73,13 @@ export default defineNuxtConfig({
     },
     clients: {
       default: {
-        // This will be overridden at runtime by NUXT_PUBLIC_GQL_HOST env var
-        host: "http://localhost:8080/v1/graphql",
+        // Host is automatically read from runtimeConfig.public.GQL_HOST at runtime
+        // No need to specify it here - nuxt-graphql-client will use runtimeConfig.public.GQL_HOST
+        // which is overridden by NUXT_PUBLIC_GQL_HOST environment variable
         token: {
           type: 'Bearer',
           name: 'Authorization',
         },
-        // Admin secret is used for schema introspection during codegen
         // Admin secret is used for schema introspection during codegen
         // The graphql-auth.ts plugin will override this with JWT tokens at runtime
         headers: process.env.HASURA_GRAPHQL_ADMIN_SECRET ? {

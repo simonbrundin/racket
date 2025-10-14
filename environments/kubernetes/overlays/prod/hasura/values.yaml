@@ -1,17 +1,3 @@
-secretName: ""
-
-env:
-  - name: HASURA_GRAPHQL_DATABASE_URL
-    valueFrom:
-      secretKeyRef:
-        name: plan-db-user
-        key: uri
-  - name: HASURA_GRAPHQL_ADMIN_SECRET
-    valueFrom:
-      secretKeyRef:
-        name: plan-db-user
-        key: password
-
 secret:
   jwtSecret:
     type: "RS256"

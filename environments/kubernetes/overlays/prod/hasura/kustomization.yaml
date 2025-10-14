@@ -10,3 +10,6 @@ helmCharts:
     valuesFile: values.yaml
 resources:
   - HTTP-route.yaml
+
+patchesStrategicMerge:
+  - deployment-patch.yaml

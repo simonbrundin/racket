@@ -2,15 +2,15 @@ apiVersion: kargo.akuity.io/v1alpha1
 kind: PromotionTask
 metadata:
   name: promote
-  namespace: plan-pipeline
+  namespace: racket-pipeline
 spec:
   vars:
     - name: repoURL
-      value: https://github.com/simonbrundin/plan.git
+      value: https://github.com/simonbrundin/racket.git
     - name: branch
       value: main
     - name: image
-      value: ghcr.io/simonbrundin/plan
+      value: ghcr.io/simonbrundin/racket
     - name: openpr
       value: "false"
   steps:

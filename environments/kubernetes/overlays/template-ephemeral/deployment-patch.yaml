@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plan
+  name: racket
 spec:
   replicas: 1
   template:
     spec:
       containers:
-        - name: plan
+        - name: racket
           resources:
             requests:
               memory: "128Mi"

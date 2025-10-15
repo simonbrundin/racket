@@ -1,22 +1,22 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: plan-route
-  namespace: plan
+  name: racket-route
+  namespace: racket
 spec:
   parentRefs:
     - name: simons-gateway
       namespace: envoy
   hostnames:
-    - "plan.simonbrundin.com"
+    - "racket.simonbrundin.com"
   rules:
     - backendRefs:
         - group: ""
           kind: Service
-          name: plan-service
+          name: racket-service
           port: 80
           weight: 1
-          namespace: plan
+          namespace: racket
       matches:
         - path:
             type: PathPrefix

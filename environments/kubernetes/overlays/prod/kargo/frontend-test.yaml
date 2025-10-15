@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: acceptance-stage
-  namespace: plan-pipeline
+  namespace: racket-pipeline
 spec:
   metrics:
     - name: acceptance-tests
@@ -35,7 +35,7 @@ spec:
 
                         # Clone repositories
                         git clone https://github.com/simonbrundin/deployment-pipeline.git /deployment-pipeline
-                        git clone https://github.com/simonbrundin/plan.git /source-repo
+                        git clone https://github.com/simonbrundin/racket.git /source-repo
 
                         # Run Dagger pipeline
                         cd /deployment-pipeline/dagger-modules/pipeline

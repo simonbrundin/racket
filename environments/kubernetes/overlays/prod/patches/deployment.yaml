@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plan-app
+  name: racket-app
 spec:
   replicas: 1
   template:
     spec:
       containers:
-        - name: plan-app
+        - name: racket-app
           resources:
             requests:
               memory: "256Mi"
@@ -19,11 +19,11 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: NUXT_PUBLIC_GQL_HOST
-              value: "https://plan-hasura.simonbrundin.com/v1/graphql"
+              value: "https://racket-hasura.simonbrundin.com/v1/graphql"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: plan-db-user
+                  name: racket-db-user
                   key: uri
             - name: NUXT_SESSION_PASSWORD
               valueFrom:

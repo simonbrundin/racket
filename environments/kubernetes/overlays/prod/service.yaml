@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: plan-service
+  name: racket-service
 spec:
   selector:
-    app: plan-app
+    app: racket-app
   ports:
     - protocol: TCP
       port: 80

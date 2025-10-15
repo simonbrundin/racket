@@ -17,7 +17,7 @@
 #             value: ["push"]
 #           - path: body.repository.full_name
 #             type: string
-#             value: ["simonbrundin/plan"]
+#             value: ["simonbrundin/racket"]
 #     - name: backend
 #       eventSourceName: github
 #       eventName: with-api-credentials
@@ -39,7 +39,7 @@
 #               apiVersion: argoproj.io/v1alpha1
 #               kind: Workflow
 #               metadata:
-#                 generateName: plan-ci-
+#                 generateName: racket-ci-
 #                 namespace: argo-events
 #               spec:
 #                 entrypoint: entrypoint
@@ -47,7 +47,7 @@
 #                   - name: source-repo
 #                     # emptyDir: {}
 #                     persistentVolumeClaim:
-#                       claimName: plan-repo
+#                       claimName: racket-repo
 #                   - name: deployment-pipeline
 #                     # emptyDir: {}
 #                     persistentVolumeClaim:
@@ -64,9 +64,9 @@
 #                       # TODO: hur löser jag att uppdatera tag och semver?
 #                       value: "{{workflow.creationTimestamp.YYYYMMDD-HHmm}}"
 #                     - name: repo-name
-#                       value: "plan"
+#                       value: "racket"
 #                     - name: source-repo-url
-#                       value: "github.com/simonbrundin/plan.git"
+#                       value: "github.com/simonbrundin/racket.git"
 #                     - name: registry-address
 #                       value: "ghcr.io/simonbrundin"
 #                     - name: registry-username

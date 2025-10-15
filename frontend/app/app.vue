@@ -6,8 +6,8 @@ const color = computed(() =>
 );
 
 useSeoMeta({
-  titleTemplate: "%s - Plan",
-  ogImage: "https://plan.example.com/og-image.png",
+  titleTemplate: "%s - Racket",
+  ogImage: "https://racket.example.com/og-image.png",
   twitterCard: "summary_large_image",
 });
 

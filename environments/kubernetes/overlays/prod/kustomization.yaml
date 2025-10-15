@@ -12,5 +12,5 @@ resources:
 patches:
   - path: patches/deployment.yaml
 images:
-  - name: ghcr.io/simonbrundin/plan
+  - name: ghcr.io/simonbrundin/racket
     newTag: "frontend-1.4.1"

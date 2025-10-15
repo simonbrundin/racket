@@ -1,7 +1,7 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
-  name: plan-route
+  name: racket-route
 spec:
   hostnames:
     - "PREVIEW_HOST_PLACEHOLDER"

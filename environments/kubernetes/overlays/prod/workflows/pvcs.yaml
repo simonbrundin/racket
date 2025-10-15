@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: plan-repo
+  name: racket-repo
 spec:
   accessModes:
     - ReadWriteMany

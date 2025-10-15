@@ -1,4 +1,4 @@
-# Tiltfile for Plan project
+# Tiltfile for Racket project
 
 # PostgreSQL development database and Hasura with Docker Compose
 docker_compose('docker-compose.yml')

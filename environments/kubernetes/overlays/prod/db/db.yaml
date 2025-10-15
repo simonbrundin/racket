@@ -1,13 +1,13 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: plan-db
+  name: racket-db
 spec:
   instances: 3
 
   bootstrap:
     initdb:
-      database: plan
+      database: racket
       owner: admin
 
   storage:
@@ -22,9 +22,9 @@ spec:
       login: true
       superuser: true
       passwordSecret:
-        name: plan-db-admin
+        name: racket-db-admin
     - name: user
       ensure: present
       login: true
       passwordSecret:
-        name: plan-db-user
+        name: racket-db-user

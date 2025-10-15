@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hasura
-  namespace: plan
+  namespace: racket
 spec:
   template:
     spec:
@@ -12,10 +12,10 @@ spec:
         - name: HASURA_GRAPHQL_DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: plan-db-user
+              name: racket-db-user
               key: uri
         - name: HASURA_GRAPHQL_ADMIN_SECRET
           valueFrom:
             secretKeyRef:
-              name: plan-db-user
+              name: racket-db-user
               key: password

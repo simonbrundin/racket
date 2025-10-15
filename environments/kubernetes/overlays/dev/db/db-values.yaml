@@ -6,13 +6,13 @@ image:
 global:
   postgresql:
     auth:
-      username: plan_dev
+      username: racket_dev
       password: dev_password
-      database: plan_dev
+      database: racket_dev
 
 primary:
   initdb:
-    scriptsConfigMap: plan-dev-db-scripts
+    scriptsConfigMap: racket-dev-db-scripts
   podSecurityContext:
     enabled: false
   containerSecurityContext:

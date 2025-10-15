@@ -2,7 +2,7 @@ apiVersion: kargo.akuity.io/v1alpha1
 kind: Warehouse
 metadata:
   name: frontend-warehouse
-  namespace: plan-pipeline # <-- ditt Project namespace
+  namespace: racket-pipeline # <-- ditt Project namespace
 spec:
   interval: 1m0s
   subscriptions:
@@ -10,9 +10,9 @@ spec:
         allowTags: ^frontend-(\d+\.\d+\.\d+)$
         discoveryLimit: 20
         imageSelectionStrategy: Lexical
-        repoURL: ghcr.io/simonbrundin/plan
+        repoURL: ghcr.io/simonbrundin/racket
     - git:
-        repoURL: https://github.com/simonbrundin/plan.git
+        repoURL: https://github.com/simonbrundin/racket.git
         branch: main
         includePaths:
           - environments/kubernetes/overlays/template-ephemeral

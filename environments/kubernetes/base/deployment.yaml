@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plan-app
+  name: racket-app
 spec:
   replicas: 2 # Starta med 2 poddar
   selector:
     matchLabels:
-      app: plan-app
+      app: racket-app
   template:
     metadata:
       labels:
-        app: plan-app
+        app: racket-app
     spec:
       imagePullSecrets:
         - name: ghcr-secret
       containers:
-        - name: plan-app
-          image: ghcr.io/simonbrundin/plan
+        - name: racket-app
+          image: ghcr.io/simonbrundin/racket
           ports:
             - containerPort: 3000
           resources:

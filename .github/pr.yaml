@@ -30,9 +30,9 @@ jobs:
       run: |
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "ENV_NAME=pr-${{ github.event.number }}" >> $GITHUB_ENV
-        echo "NAMESPACE=plan-pr-${{ github.event.number }}" >> $GITHUB_ENV
+        echo "NAMESPACE=racket-pr-${{ github.event.number }}" >> $GITHUB_ENV
         echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.sha }}" >> $GITHUB_ENV
-        echo "PREVIEW_URL=https://plan-pr-${{ github.event.number }}.preview.yourdomain.com" >> $GITHUB_ENV
+        echo "PREVIEW_URL=https://racket-pr-${{ github.event.number }}.preview.yourdomain.com" >> $GITHUB_ENV
 
     - name: Log in to Container Registry
       uses: docker/login-action@v3
@@ -67,7 +67,7 @@ jobs:
         sed -i "s/ENV_NAME_PLACEHOLDER/${{ env.ENV_NAME }}/g" /tmp/pr-${{ env.PR_NUMBER }}/kustomization.yaml
         
         # Ersätt placeholders i patches
-        find /tmp/pr-${{ env.PR_NUMBER }} -name "*.yaml" -exec sed -i "s/PREVIEW_HOST_PLACEHOLDER/plan-pr-${{ github.event.number }}.preview.yourdomain.com/g" {} \;
+        find /tmp/pr-${{ env.PR_NUMBER }} -name "*.yaml" -exec sed -i "s/PREVIEW_HOST_PLACEHOLDER/racket-pr-${{ github.event.number }}.preview.yourdomain.com/g" {} \;
         
         # Bygg manifests
         cd /tmp/pr-${{ env.PR_NUMBER }}
@@ -95,7 +95,7 @@ jobs:
         kubectl apply -f /tmp/pr-manifests.yaml -n ${{ env.NAMESPACE }}
         
         # Vänta på att deployment blir ready
-        kubectl rollout status deployment/plan -n ${{ env.NAMESPACE }} --timeout=300s
+        kubectl rollout status deployment/racket -n ${{ env.NAMESPACE }} --timeout=300s
 
     - name: Comment PR with preview URL
       uses: actions/github-script@v7
@@ -148,7 +148,7 @@ jobs:
     - name: Set up environment variables
       run: |
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
-        echo "NAMESPACE=plan-pr-${{ github.event.number }}" >> $GITHUB_ENV
+        echo "NAMESPACE=racket-pr-${{ github.event.number }}" >> $GITHUB_ENV
 
     - name: Setup kubectl
       uses: azure/setup-kubectl@v3
@@ -174,6 +174,6 @@ jobs:
             repo: context.repo.repo,
             issue_number: context.issue.number,
             body: `🧹 **Environment Cleaned Up**
-            
-            The preview environment \`plan-pr-${{ github.event.number }}\` has been deleted.`
+
+            The preview environment \`racket-pr-${{ github.event.number }}\` has been deleted.`
           });
